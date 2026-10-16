@@ -45,9 +45,16 @@
             </div>
         </div>
 
-        <!-- Display Area with Transparent Buttons & Clean Background -->
+        <!-- Single View Container -->
+        <div id="singleViewContainer" class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+            <div class="p-3 bg-slate-50 border-b border-slate-200 flex justify-between items-center text-xs text-slate-600">
+                <span><i class="fa-regular fa-clock text-blue-600 mr-1"></i> ไฟล์: <strong id="timeDisplay">กำลังโหลด...</strong></span>
+                <span id="frameCounter" class="bg-slate-200 px-2.5 py-0.5 rounded-full font-mono text-xs">0 / 0</span>
+            </div>
+
+            <!-- Display Area with Clean White Background (No dark margins) -->
             <div class="relative bg-white flex items-center justify-center min-h-[380px] sm:min-h-[480px] select-none border-b border-slate-100">
-                <!-- Prev Button (Transparent icon with text-shadow) -->
+                <!-- Prev Button (Transparent background, Slate Icon) -->
                 <button id="prevBtn" onclick="prevImage()" class="absolute left-2 top-1/2 -translate-y-1/2 z-10 p-2 text-slate-700 hover:text-slate-900 transition disabled:opacity-0 disabled:cursor-not-allowed drop-shadow-[0_1px_2px_rgba(255,255,255,0.9)]">
                     <i class="fa-solid fa-chevron-left text-3xl sm:text-4xl"></i>
                 </button>
@@ -55,8 +62,8 @@
                 <!-- Main Radar Image -->
                 <img id="radarImg" src="" alt="Radar Image" class="max-w-full max-h-[550px] object-contain transition-all duration-150">
 
-                <!-- Next Button (Transparent icon with text-shadow) -->
-                <button id="nextBtn" onclick="nextImage()" class="absolute right-2 top-1/2 -translate-y-1/2 z-10 p-3 text-slate-700 hover:text-slate-900 transition disabled:opacity-0 disabled:cursor-not-allowed drop-shadow-[0_1px_2px_rgba(255,255,255,0.9)]">
+                <!-- Next Button (Transparent background, Slate Icon) -->
+                <button id="nextBtn" onclick="nextImage()" class="absolute right-2 top-1/2 -translate-y-1/2 z-10 p-2 text-slate-700 hover:text-slate-900 transition disabled:opacity-0 disabled:cursor-not-allowed drop-shadow-[0_1px_2px_rgba(255,255,255,0.9)]">
                     <i class="fa-solid fa-chevron-right text-3xl sm:text-4xl"></i>
                 </button>
 
@@ -70,7 +77,6 @@
             <div class="p-3 bg-slate-50 border-t border-slate-200 space-y-3">
                 <input type="range" id="timelineSlider" min="0" max="0" value="0" oninput="onSliderChange(this.value)" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-600">
                 
-                <!-- Buttons Area: Added "Go to Latest" Button -->
                 <div class="flex flex-wrap justify-center items-center gap-2.5">
                     <button id="playBtn" onclick="togglePlayLoop()" class="px-5 py-2 rounded-full bg-blue-600 hover:bg-blue-700 text-white text-xs sm:text-sm font-medium flex items-center gap-2 shadow transition">
                         <i id="playIcon" class="fa-solid fa-play"></i>
@@ -150,7 +156,6 @@
             document.getElementById('frameCounter').innerText = `${currentIndex + 1} / ${radarImages.length}`;
             document.getElementById('timelineSlider').value = currentIndex;
             
-            // อัปเดตการแสดงผลปุ่ม ถอยหลัง / ถัดไป
             document.getElementById('prevBtn').disabled = (currentIndex === 0);
             document.getElementById('nextBtn').disabled = (currentIndex === radarImages.length - 1);
             
@@ -170,7 +175,6 @@
             }
         }
 
-        // ฟังก์ชันวาร์ปไปดูภาพปัจจุบัน (ภาพล่าสุด)
         function goToLatestImage() {
             if (isPlaying) togglePlayLoop();
             if (radarImages.length > 0) {
