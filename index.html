@@ -52,19 +52,19 @@
                 <span id="frameCounter" class="bg-slate-200 px-2.5 py-0.5 rounded-full font-mono text-xs">0 / 0</span>
             </div>
 
-            <!-- Display Area with Prev/Next Navigation -->
+            <!-- Display Area with Prev/Next Navigation (Transparent Background Buttons) -->
             <div class="relative bg-slate-900 flex items-center justify-center min-h-[380px] sm:min-h-[480px] select-none">
-                <!-- Prev Button -->
-                <button id="prevBtn" onclick="prevImage()" class="absolute left-2 top-1/2 -translate-y-1/2 z-10 w-11 h-11 rounded-full bg-black/50 hover:bg-black/80 text-white flex items-center justify-center transition disabled:opacity-20 disabled:cursor-not-allowed shadow-lg">
-                    <i class="fa-solid fa-chevron-left text-lg"></i>
+                <!-- Prev Button (Transparent) -->
+                <button id="prevBtn" onclick="prevImage()" class="absolute left-2 top-1/2 -translate-y-1/2 z-10 p-3 text-white/70 hover:text-white transition disabled:opacity-0 disabled:cursor-not-allowed drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
+                    <i class="fa-solid fa-chevron-left text-3xl sm:text-4xl"></i>
                 </button>
 
                 <!-- Main Radar Image -->
                 <img id="radarImg" src="" alt="Radar Image" class="max-w-full max-h-[550px] object-contain transition-all duration-150">
 
-                <!-- Next Button -->
-                <button id="nextBtn" onclick="nextImage()" class="absolute right-2 top-1/2 -translate-y-1/2 z-10 w-11 h-11 rounded-full bg-black/50 hover:bg-black/80 text-white flex items-center justify-center transition disabled:opacity-20 disabled:cursor-not-allowed shadow-lg">
-                    <i class="fa-solid fa-chevron-right text-lg"></i>
+                <!-- Next Button (Transparent) -->
+                <button id="nextBtn" onclick="nextImage()" class="absolute right-2 top-1/2 -translate-y-1/2 z-10 p-3 text-white/70 hover:text-white transition disabled:opacity-0 disabled:cursor-not-allowed drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
+                    <i class="fa-solid fa-chevron-right text-3xl sm:text-4xl"></i>
                 </button>
 
                 <!-- Loading Spinner -->
@@ -73,24 +73,30 @@
                 </div>
             </div>
 
-            <!-- Controls / Slider -->
+            <!-- Controls / Slider & Action Buttons -->
             <div class="p-3 bg-slate-50 border-t border-slate-200 space-y-3">
                 <input type="range" id="timelineSlider" min="0" max="0" value="0" oninput="onSliderChange(this.value)" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-600">
-                <div class="flex justify-center items-center gap-3">
-                    <button id="playBtn" onclick="togglePlayLoop()" class="px-6 py-2 rounded-full bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium flex items-center gap-2 shadow transition">
+                
+                <!-- Buttons Area: Added "Go to Latest" Button -->
+                <div class="flex flex-wrap justify-center items-center gap-2.5">
+                    <button id="playBtn" onclick="togglePlayLoop()" class="px-5 py-2 rounded-full bg-blue-600 hover:bg-blue-700 text-white text-xs sm:text-sm font-medium flex items-center gap-2 shadow transition">
                         <i id="playIcon" class="fa-solid fa-play"></i>
                         <span id="playText">เล่นวิดีโอ Loop ย้อนหลัง</span>
+                    </button>
+
+                    <button id="latestBtn" onclick="goToLatestImage()" class="px-4 py-2 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white text-xs sm:text-sm font-medium flex items-center gap-1.5 shadow transition">
+                        <i class="fa-solid fa-rotate-right"></i>
+                        <span>ดูภาพปัจจุบัน</span>
                     </button>
                 </div>
             </div>
         </div>
 
-        <!-- Grid View Container (Larger Images) -->
+        <!-- Grid View Container -->
         <div id="gridViewContainer" class="hidden bg-white rounded-xl p-4 shadow-sm border border-slate-200">
             <h2 class="text-sm font-bold text-slate-700 mb-4 flex items-center gap-2">
                 <i class="fa-solid fa-border-all text-blue-600"></i> ภาพเรดาร์ทั้งหมดในวันที่เลือก (กดที่ภาพเพื่อดูภาพขยาย)
             </h2>
-            <!-- Adjusted Grid Columns for Larger Image Display -->
             <div id="gridGallery" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4"></div>
         </div>
     </main>
@@ -138,7 +144,7 @@
             }
 
             document.getElementById('timelineSlider').max = radarImages.length - 1;
-            currentIndex = radarImages.length - 1; // แสดงภาพล่าสุดเป็นภาพแรก
+            currentIndex = radarImages.length - 1; // แสดงภาพล่าสุด
             updateSingleDisplay(currentIndex);
             renderGridView();
         }
@@ -151,7 +157,7 @@
             document.getElementById('frameCounter').innerText = `${currentIndex + 1} / ${radarImages.length}`;
             document.getElementById('timelineSlider').value = currentIndex;
             
-            // อัปเดตสถานะปุ่ม เลื่อนหน้า / ถอยหลัง
+            // อัปเดตการแสดงผลปุ่ม ถอยหลัง / ถัดไป
             document.getElementById('prevBtn').disabled = (currentIndex === 0);
             document.getElementById('nextBtn').disabled = (currentIndex === radarImages.length - 1);
             
@@ -168,6 +174,14 @@
         function nextImage() {
             if (currentIndex < radarImages.length - 1) {
                 updateSingleDisplay(currentIndex + 1);
+            }
+        }
+
+        // ฟังก์ชันวาร์ปไปดูภาพปัจจุบัน (ภาพล่าสุด)
+        function goToLatestImage() {
+            if (isPlaying) togglePlayLoop();
+            if (radarImages.length > 0) {
+                updateSingleDisplay(radarImages.length - 1);
             }
         }
 
@@ -242,7 +256,6 @@
             }
         }
 
-        // รองรับการใช้ลูกศร ซ้าย-ขวา บนคีย์บอร์ดเลื่อนรูปภาพ
         document.addEventListener('keydown', (e) => {
             const singleBox = document.getElementById('singleViewContainer');
             if (!singleBox.classList.contains('hidden')) {
