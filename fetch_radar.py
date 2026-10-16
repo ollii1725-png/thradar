@@ -21,13 +21,25 @@ headers = {
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
 }
 
-def extract_date_from_filename(filename):
-    """แกะ ปี/เดือน/วัน จากชื่อไฟล์ เช่น 2026101708480000dBZ -> 2026, 10, 17"""
-    match = re.search(r'(\d{4})(\d{2})(\d{2})\d+', filename)
+def parse_filename_to_thai_date(filename):
+    """
+    แกะเวลา UTC จากชื่อไฟล์ (เช่น 2026101617290000dBZ -> YYYY=2026, MM=10, DD=16, HH=17, MM=29)
+    แล้วบวกเพิ่ม 7 ชั่วโมง ให้เป็นเวลาไทย (UTC+7)
+    """
+    match = re.search(r'(\d{4})(\d{2})(\d{2})(\d{2})(\d{2})', filename)
     if match:
-        return match.groups()
-    now = datetime.datetime.now()
-    return str(now.year), f"{now.month:02d}", f"{now.day:02d}"
+        year, month, day, hour, minute = match.groups()
+        # สร้างวัตถุ datetime เป็นเวลา UTC
+        utc_dt = datetime.datetime(int(year), int(month), int(day), int(hour), int(minute))
+        # แปลงเป็นเวลาไทย (UTC + 7 Hours)
+        thai_dt = utc_dt + datetime.timedelta(hours=7)
+        
+        # คืนค่า (ปีไทย, เดือนไทย, วันไทย)
+        return thai_dt.strftime("%Y"), thai_dt.strftime("%m"), thai_dt.strftime("%d")
+    
+    # กรณีชื่อไฟล์ไม่มีรูปแบบเวลามาตรฐาน ให้ใช้เวลาปัจจุบัน (UTC+7)
+    now_thai = datetime.datetime.utcnow() + datetime.timedelta(hours=7)
+    return now_thai.strftime("%Y"), now_thai.strftime("%m"), now_thai.strftime("%d")
 
 def apply_logo_only(image_path):
     """ประทับภาพโลโก้ไว้ที่มุมซ้ายบน"""
@@ -71,23 +83,27 @@ def process_station_check_all_today(station_name, station_label):
             print(f"[{station_name}] ไม่พบภาพเรดาร์ในหน้าเว็บ")
             return
 
-        # คำนวณวันที่ปัจจุบัน (ปี, เดือน, วัน)
-        now = datetime.datetime.utcnow() + datetime.timedelta(hours=7) # เวลาไทย UTC+7
-        today_year = now.strftime("%Y")
-        today_month = now.strftime("%m")
-        today_day = now.strftime("%d")
+        # คำนวณวันที่ปัจจุบันของไทย (UTC+7)
+        now_thai = datetime.datetime.utcnow() + datetime.timedelta(hours=7)
+        today_year = now_thai.strftime("%Y")
+        today_month = now_thai.strftime("%m")
+        today_day = now_thai.strftime("%d")
 
         download_count = 0
         skip_count = 0
 
-        # 2. วนลูปเช็คภาพทั้งหมดในหน้าเว็บ
+        # 2. วนลูปเช็คภาพทั้งหมด
         for img_url in img_urls:
             filename = os.path.basename(img_url.split('?')[0])
-            year, month, day = extract_date_from_filename(filename)
+            
+            # แปลงเวลาในชื่อไฟล์จาก UTC เป็นเวลาไทย
+            thai_year, thai_month, thai_day = parse_filename_to_thai_date(filename)
 
-            # กรองเอาเฉพาะภาพที่เป็นของ "วันนี้" เท่านั้น
-            if year == today_year and month == today_month and day == today_day:
-                save_dir = os.path.join(BASE_SAVE_DIR, station_name, year, month, day)
+            # เช็คว่าหลังจากแปลงเป็นเวลาไทยแล้ว ภาพนั้นตรงกับ "วันนี้ของไทย" หรือไม่
+            if thai_year == today_year and thai_month == today_month and thai_day == today_day:
+                
+                # จัดเก็บในโฟลเดอร์ตามวันที่เวลาไทย
+                save_dir = os.path.join(BASE_SAVE_DIR, station_name, thai_year, thai_month, thai_day)
                 os.makedirs(save_dir, exist_ok=True)
                 filepath = os.path.join(save_dir, filename)
 
@@ -96,7 +112,7 @@ def process_station_check_all_today(station_name, station_label):
                     skip_count += 1
                     continue
 
-                # ถ้ายังไม่มี ให้ดาวน์โหลดและประทับโลโก้
+                # ดาวน์โหลดและใส่โลโก้
                 img_res = requests.get(img_url, headers=headers, timeout=15)
                 if img_res.status_code == 200 and len(img_res.content) > 3000:
                     with open(filepath, 'wb') as f:
@@ -104,9 +120,9 @@ def process_station_check_all_today(station_name, station_label):
 
                     apply_logo_only(filepath)
                     download_count += 1
-                    print(f"   [+] โหลดภาพย้อนหลังเพิ่ม: {filename}")
+                    print(f"   [+] โหลดภาพย้อนหลังเพิ่ม: {filename} (เวลาไทย: {thai_year}-{thai_month}-{thai_day})")
 
-        print(f"[{station_name}] สรุปวันนี้: โหลดเพิ่ม {download_count} ภาพ | มีอยู่แล้ว {skip_count} ภาพ (ครบสมบูรณ์)")
+        print(f"[{station_name}] สรุปวันนี้ ({today_year}-{today_month}-{today_day}): โหลดเพิ่ม {download_count} ภาพ | มีอยู่แล้ว {skip_count} ภาพ")
 
     except Exception as e:
         print(f"[{station_name}] เกิดข้อผิดพลาด: {e}")
