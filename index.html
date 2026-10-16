@@ -9,27 +9,29 @@
 </head>
 <body class="bg-slate-100 min-h-screen text-slate-800">
 
+    <!-- Header -->
     <header class="bg-blue-900 text-white p-4 shadow-md sticky top-0 z-50">
-        <div class="max-w-4xl mx-auto flex justify-between items-center">
+        <div class="max-w-5xl mx-auto flex justify-between items-center">
             <h1 class="text-lg md:text-xl font-bold flex items-center gap-2">
                 <i class="fa-solid fa-satellite-dish text-sky-400"></i> thradar
             </h1>
             <div class="flex items-center gap-2">
-                <button id="viewSingleBtn" onclick="switchView('single')" class="px-3 py-1 bg-blue-700 rounded text-xs font-medium border border-blue-400 text-white">
+                <button id="viewSingleBtn" onclick="switchView('single')" class="px-3 py-1.5 bg-blue-700 rounded text-xs font-medium border border-blue-400 text-white">
                     <i class="fa-solid fa-image"></i> ดูภาพเดี่ยว
                 </button>
-                <button id="viewGridBtn" onclick="switchView('grid')" class="px-3 py-1 bg-blue-900 rounded text-xs font-medium text-slate-300">
+                <button id="viewGridBtn" onclick="switchView('grid')" class="px-3 py-1.5 bg-blue-900 rounded text-xs font-medium text-slate-300 hover:text-white">
                     <i class="fa-solid fa-border-all"></i> ดูกริด
                 </button>
             </div>
         </div>
     </header>
 
-    <main class="max-w-4xl mx-auto p-3 sm:p-4 space-y-4">
+    <main class="max-w-5xl mx-auto p-3 sm:p-4 space-y-4">
+        <!-- Control Panel -->
         <div class="bg-white rounded-xl p-3 shadow-sm border border-slate-200 grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
                 <label class="block text-xs font-semibold text-slate-500 mb-1">สถานีเรดาร์</label>
-                <select id="stationSelect" onchange="loadRadarData()" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2 text-sm">
+                <select id="stationSelect" onchange="loadRadarData()" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2 text-sm font-medium">
                     <option value="sattahip">สัตหีบ</option>
                     <option value="omkoi">อมก๋อย</option>
                     <option value="phnom">พนม</option>
@@ -39,39 +41,57 @@
             </div>
             <div>
                 <label class="block text-xs font-semibold text-slate-500 mb-1">เลือกวันที่ดูย้อนหลัง</label>
-                <input type="date" id="datePicker" onchange="loadRadarData()" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2 text-sm">
+                <input type="date" id="datePicker" onchange="loadRadarData()" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2 text-sm font-medium">
             </div>
         </div>
 
+        <!-- Single View Container -->
         <div id="singleViewContainer" class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
             <div class="p-3 bg-slate-50 border-b border-slate-200 flex justify-between items-center text-xs text-slate-600">
-                <span><i class="fa-regular fa-clock text-blue-600 mr-1"></i> เวลา: <strong id="timeDisplay">กำลังโหลด...</strong></span>
-                <span id="frameCounter" class="bg-slate-200 px-2 py-0.5 rounded text-xs">0 / 0</span>
+                <span><i class="fa-regular fa-clock text-blue-600 mr-1"></i> ไฟล์: <strong id="timeDisplay">กำลังโหลด...</strong></span>
+                <span id="frameCounter" class="bg-slate-200 px-2.5 py-0.5 rounded-full font-mono text-xs">0 / 0</span>
             </div>
 
-            <div class="relative bg-slate-900 flex items-center justify-center min-h-[350px]">
-                <img id="radarImg" src="" alt="Radar Image" class="max-w-full h-auto object-contain">
+            <!-- Display Area with Prev/Next Navigation -->
+            <div class="relative bg-slate-900 flex items-center justify-center min-h-[380px] sm:min-h-[480px] select-none">
+                <!-- Prev Button -->
+                <button id="prevBtn" onclick="prevImage()" class="absolute left-2 top-1/2 -translate-y-1/2 z-10 w-11 h-11 rounded-full bg-black/50 hover:bg-black/80 text-white flex items-center justify-center transition disabled:opacity-20 disabled:cursor-not-allowed shadow-lg">
+                    <i class="fa-solid fa-chevron-left text-lg"></i>
+                </button>
+
+                <!-- Main Radar Image -->
+                <img id="radarImg" src="" alt="Radar Image" class="max-w-full max-h-[550px] object-contain transition-all duration-150">
+
+                <!-- Next Button -->
+                <button id="nextBtn" onclick="nextImage()" class="absolute right-2 top-1/2 -translate-y-1/2 z-10 w-11 h-11 rounded-full bg-black/50 hover:bg-black/80 text-white flex items-center justify-center transition disabled:opacity-20 disabled:cursor-not-allowed shadow-lg">
+                    <i class="fa-solid fa-chevron-right text-lg"></i>
+                </button>
+
+                <!-- Loading Spinner -->
                 <div id="loadingSpinner" class="absolute inset-0 bg-slate-900/70 flex items-center justify-center text-white text-sm">
-                    <i class="fa-solid fa-spinner fa-spin text-2xl mr-2"></i> กำลังดึงข้อมูล...
+                    <i class="fa-solid fa-spinner fa-spin text-3xl mr-2"></i> กำลังดึงข้อมูล...
                 </div>
             </div>
 
+            <!-- Controls / Slider -->
             <div class="p-3 bg-slate-50 border-t border-slate-200 space-y-3">
-                <input type="range" id="timelineSlider" min="0" max="0" value="0" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-600">
+                <input type="range" id="timelineSlider" min="0" max="0" value="0" oninput="onSliderChange(this.value)" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-600">
                 <div class="flex justify-center items-center gap-3">
-                    <button id="playBtn" onclick="togglePlayLoop()" class="px-5 py-2 rounded-full bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium flex items-center gap-2 shadow">
+                    <button id="playBtn" onclick="togglePlayLoop()" class="px-6 py-2 rounded-full bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium flex items-center gap-2 shadow transition">
                         <i id="playIcon" class="fa-solid fa-play"></i>
-                        <span id="playText">เล่นวิดีโอ Loop ย้อนหลัง 1 ชม.</span>
+                        <span id="playText">เล่นวิดีโอ Loop ย้อนหลัง</span>
                     </button>
                 </div>
             </div>
         </div>
 
+        <!-- Grid View Container (Larger Images) -->
         <div id="gridViewContainer" class="hidden bg-white rounded-xl p-4 shadow-sm border border-slate-200">
-            <h2 class="text-sm font-bold text-slate-700 mb-3 flex items-center gap-2">
-                <i class="fa-solid fa-border-all text-blue-600"></i> ภาพเรดาร์ทั้งหมดในวันที่เลือก
+            <h2 class="text-sm font-bold text-slate-700 mb-4 flex items-center gap-2">
+                <i class="fa-solid fa-border-all text-blue-600"></i> ภาพเรดาร์ทั้งหมดในวันที่เลือก (กดที่ภาพเพื่อดูภาพขยาย)
             </h2>
-            <div id="gridGallery" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3"></div>
+            <!-- Adjusted Grid Columns for Larger Image Display -->
+            <div id="gridGallery" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4"></div>
         </div>
     </main>
 
@@ -111,24 +131,49 @@
             if (radarImages.length === 0) {
                 document.getElementById('timeDisplay').innerText = "ไม่พบภาพในวันที่เลือก";
                 if (spinner) spinner.style.display = 'none';
-                document.getElementById('gridGallery').innerHTML = '<p class="col-span-full text-center text-xs text-slate-400 py-6">ไม่มีข้อมูลภาพเรดาร์ในระบบ</p>';
+                document.getElementById('gridGallery').innerHTML = '<p class="col-span-full text-center text-sm text-slate-400 py-10">ไม่มีข้อมูลภาพเรดาร์ในระบบประจำวันที่เลือก</p>';
+                document.getElementById('prevBtn').disabled = true;
+                document.getElementById('nextBtn').disabled = true;
                 return;
             }
 
             document.getElementById('timelineSlider').max = radarImages.length - 1;
-            currentIndex = radarImages.length - 1;
+            currentIndex = radarImages.length - 1; // แสดงภาพล่าสุดเป็นภาพแรก
             updateSingleDisplay(currentIndex);
             renderGridView();
         }
 
         function updateSingleDisplay(index) {
-            currentIndex = index;
+            currentIndex = parseInt(index);
             const item = radarImages[currentIndex];
             document.getElementById('radarImg').src = item.url;
             document.getElementById('timeDisplay').innerText = item.filename;
             document.getElementById('frameCounter').innerText = `${currentIndex + 1} / ${radarImages.length}`;
             document.getElementById('timelineSlider').value = currentIndex;
-            document.getElementById('loadingSpinner').style.display = 'none';
+            
+            // อัปเดตสถานะปุ่ม เลื่อนหน้า / ถอยหลัง
+            document.getElementById('prevBtn').disabled = (currentIndex === 0);
+            document.getElementById('nextBtn').disabled = (currentIndex === radarImages.length - 1);
+            
+            const spinner = document.getElementById('loadingSpinner');
+            if (spinner) spinner.style.display = 'none';
+        }
+
+        function prevImage() {
+            if (currentIndex > 0) {
+                updateSingleDisplay(currentIndex - 1);
+            }
+        }
+
+        function nextImage() {
+            if (currentIndex < radarImages.length - 1) {
+                updateSingleDisplay(currentIndex + 1);
+            }
+        }
+
+        function onSliderChange(val) {
+            if (isPlaying) togglePlayLoop();
+            updateSingleDisplay(val);
         }
 
         function togglePlayLoop() {
@@ -138,14 +183,14 @@
             if (isPlaying) {
                 isPlaying = false;
                 playIcon.className = "fa-solid fa-play";
-                playText.innerText = "เล่นวิดีโอ Loop ย้อนหลัง 1 ชม.";
+                playText.innerText = "เล่นวิดีโอ Loop ย้อนหลัง";
                 clearInterval(playInterval);
             } else {
                 isPlaying = true;
                 playIcon.className = "fa-solid fa-pause";
                 playText.innerText = "หยุดเล่น";
 
-                const startFrame = Math.max(0, radarImages.length - 10);
+                const startFrame = Math.max(0, radarImages.length - 12);
                 currentIndex = startFrame;
 
                 playInterval = setInterval(() => {
@@ -161,10 +206,12 @@
         function renderGridView() {
             const gallery = document.getElementById('gridGallery');
             gallery.innerHTML = radarImages.map((img, idx) => `
-                <div onclick="selectImageFromGrid(${idx})" class="cursor-pointer border border-slate-200 rounded-lg overflow-hidden bg-slate-900 hover:ring-2 hover:ring-blue-500 transition">
-                    <img src="${img.url}" alt="${img.filename}" class="w-full h-auto object-contain">
-                    <div class="p-1.5 bg-slate-50 text-[10px] text-center text-slate-600 font-mono truncate">
-                        ${img.filename}
+                <div onclick="selectImageFromGrid(${idx})" class="cursor-pointer border border-slate-200 rounded-xl overflow-hidden bg-slate-900 hover:ring-4 hover:ring-blue-500/50 transition duration-200 shadow-sm hover:shadow-md group">
+                    <div class="relative bg-slate-950 flex items-center justify-center p-1 min-h-[220px]">
+                        <img src="${img.url}" alt="${img.filename}" class="w-full h-auto object-contain max-h-[300px] group-hover:scale-105 transition duration-200">
+                    </div>
+                    <div class="p-2.5 bg-slate-50 border-t border-slate-200 text-xs text-center font-medium text-slate-700 font-mono truncate">
+                        <i class="fa-regular fa-image text-blue-600 mr-1"></i> ${img.filename}
                     </div>
                 </div>
             `).join('');
@@ -184,16 +231,25 @@
             if (mode === 'single') {
                 singleBox.classList.remove('hidden');
                 gridBox.classList.add('hidden');
-                singleBtn.className = "px-3 py-1 bg-blue-700 text-xs font-medium border border-blue-400 text-white rounded";
-                gridBtn.className = "px-3 py-1 bg-blue-900 text-xs font-medium text-slate-300 rounded";
+                singleBtn.className = "px-3 py-1.5 bg-blue-700 text-xs font-medium border border-blue-400 text-white rounded shadow-sm";
+                gridBtn.className = "px-3 py-1.5 bg-blue-900 text-xs font-medium text-slate-300 hover:text-white rounded";
             } else {
                 if (isPlaying) togglePlayLoop();
                 singleBox.classList.add('hidden');
                 gridBox.classList.remove('hidden');
-                gridBtn.className = "px-3 py-1 bg-blue-700 text-xs font-medium border border-blue-400 text-white rounded";
-                singleBtn.className = "px-3 py-1 bg-blue-900 text-xs font-medium text-slate-300 rounded";
+                gridBtn.className = "px-3 py-1.5 bg-blue-700 text-xs font-medium border border-blue-400 text-white rounded shadow-sm";
+                singleBtn.className = "px-3 py-1.5 bg-blue-900 text-xs font-medium text-slate-300 hover:text-white rounded";
             }
         }
+
+        // รองรับการใช้ลูกศร ซ้าย-ขวา บนคีย์บอร์ดเลื่อนรูปภาพ
+        document.addEventListener('keydown', (e) => {
+            const singleBox = document.getElementById('singleViewContainer');
+            if (!singleBox.classList.contains('hidden')) {
+                if (e.key === 'ArrowLeft') prevImage();
+                if (e.key === 'ArrowRight') nextImage();
+            }
+        });
 
         loadRadarData();
     </script>
