@@ -101,168 +101,172 @@
     </main>
 
     <script>
-        document.getElementById('datePicker').valueAsDate = new Date();
+    // ตั้งค่า Date Picker เป็นวันที่ปัจจุบันตามเวลาท้องถิ่น
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    document.getElementById('datePicker').value = `${year}-${month}-${day}`;
 
-        let radarImages = [];
-        let currentIndex = 0;
-        let isPlaying = false;
-        let playInterval = null;
+    let radarImages = [];
+    let currentIndex = 0;
+    let isPlaying = false;
+    let playInterval = null;
 
-        async function loadRadarData() {
-            const station = document.getElementById('stationSelect').value;
-            const selectedDate = document.getElementById('datePicker').value; // YYYY-MM-DD
-            const [year, month, day] = selectedDate.split('-');
-            const spinner = document.getElementById('loadingSpinner');
-            if (spinner) spinner.style.display = 'flex';
+    async function loadRadarData() {
+        const station = document.getElementById('stationSelect').value;
+        const selectedDate = document.getElementById('datePicker').value; // YYYY-MM-DD
+        const [year, month, day] = selectedDate.split('-');
+        const spinner = document.getElementById('loadingSpinner');
+        if (spinner) spinner.style.display = 'flex';
 
-            const username = window.location.hostname.split('.')[0];
-            const dataRepo = `thradar-data-${year}`;
-            const apiUrl = `https://api.github.com/repos/${username}/${dataRepo}/contents/radar-images/${station}/${year}/${month}/${day}`;
+        const username = window.location.hostname.split('.')[0];
+        const dataRepo = `thradar-data-${year}`;
+        const apiUrl = `https://api.github.com/repos/${username}/${dataRepo}/contents/radar-images/${station}/${year}/${month}/${day}`;
 
-            try {
-                const res = await fetch(apiUrl);
-                if (res.ok) {
-                    const data = await res.json();
-                    radarImages = data
-                        .filter(file => file.name.endsWith('.png'))
-                        .map(file => ({ filename: file.name, url: file.download_url }));
-                } else {
-                    radarImages = [];
-                }
-            } catch (e) {
+        try {
+            const res = await fetch(apiUrl);
+            if (res.ok) {
+                const data = await res.json();
+                radarImages = data
+                    .filter(file => file.name.endsWith('.png'))
+                    .map(file => ({ filename: file.name, url: file.download_url }));
+            } else {
                 radarImages = [];
             }
-
-            if (radarImages.length === 0) {
-                document.getElementById('timeDisplay').innerText = "ไม่พบภาพในวันที่เลือก";
-                if (spinner) spinner.style.display = 'none';
-                document.getElementById('gridGallery').innerHTML = '<p class="col-span-full text-center text-sm text-slate-400 py-10">ไม่มีข้อมูลภาพเรดาร์ในระบบประจำวันที่เลือก</p>';
-                document.getElementById('prevBtn').disabled = true;
-                document.getElementById('nextBtn').disabled = true;
-                return;
-            }
-
-            document.getElementById('timelineSlider').max = radarImages.length - 1;
-            currentIndex = radarImages.length - 1; // แสดงภาพล่าสุด
-            updateSingleDisplay(currentIndex);
-            renderGridView();
+        } catch (e) {
+            radarImages = [];
         }
 
-        function updateSingleDisplay(index) {
-            currentIndex = parseInt(index);
-            const item = radarImages[currentIndex];
-            document.getElementById('radarImg').src = item.url;
-            document.getElementById('timeDisplay').innerText = item.filename;
-            document.getElementById('frameCounter').innerText = `${currentIndex + 1} / ${radarImages.length}`;
-            document.getElementById('timelineSlider').value = currentIndex;
-            
-            document.getElementById('prevBtn').disabled = (currentIndex === 0);
-            document.getElementById('nextBtn').disabled = (currentIndex === radarImages.length - 1);
-            
-            const spinner = document.getElementById('loadingSpinner');
+        if (radarImages.length === 0) {
+            document.getElementById('timeDisplay').innerText = "ไม่พบภาพในวันที่เลือก";
             if (spinner) spinner.style.display = 'none';
+            document.getElementById('gridGallery').innerHTML = '<p class="col-span-full text-center text-sm text-slate-400 py-10">ไม่มีข้อมูลภาพเรดาร์ในระบบประจำวันที่เลือก</p>';
+            document.getElementById('prevBtn').disabled = true;
+            document.getElementById('nextBtn').disabled = true;
+            return;
         }
 
-        function prevImage() {
-            if (currentIndex > 0) {
-                updateSingleDisplay(currentIndex - 1);
-            }
+        document.getElementById('timelineSlider').max = radarImages.length - 1;
+        currentIndex = radarImages.length - 1; // แสดงภาพล่าสุด
+        updateSingleDisplay(currentIndex);
+        renderGridView();
+    }
+
+    function updateSingleDisplay(index) {
+        currentIndex = parseInt(index);
+        const item = radarImages[currentIndex];
+        document.getElementById('radarImg').src = item.url;
+        document.getElementById('timeDisplay').innerText = item.filename;
+        document.getElementById('frameCounter').innerText = `${currentIndex + 1} / ${radarImages.length}`;
+        document.getElementById('timelineSlider').value = currentIndex;
+        
+        document.getElementById('prevBtn').disabled = (currentIndex === 0);
+        document.getElementById('nextBtn').disabled = (currentIndex === radarImages.length - 1);
+        
+        const spinner = document.getElementById('loadingSpinner');
+        if (spinner) spinner.style.display = 'none';
+    }
+
+    function prevImage() {
+        if (currentIndex > 0) {
+            updateSingleDisplay(currentIndex - 1);
         }
+    }
 
-        function nextImage() {
-            if (currentIndex < radarImages.length - 1) {
-                updateSingleDisplay(currentIndex + 1);
-            }
+    function nextImage() {
+        if (currentIndex < radarImages.length - 1) {
+            updateSingleDisplay(currentIndex + 1);
         }
+    }
 
-        function goToLatestImage() {
-            if (isPlaying) togglePlayLoop();
-            if (radarImages.length > 0) {
-                updateSingleDisplay(radarImages.length - 1);
-            }
+    function goToLatestImage() {
+        if (isPlaying) togglePlayLoop();
+        if (radarImages.length > 0) {
+            updateSingleDisplay(radarImages.length - 1);
         }
+    }
 
-        function onSliderChange(val) {
-            if (isPlaying) togglePlayLoop();
-            updateSingleDisplay(val);
+    function onSliderChange(val) {
+        if (isPlaying) togglePlayLoop();
+        updateSingleDisplay(val);
+    }
+
+    function togglePlayLoop() {
+        const playIcon = document.getElementById('playIcon');
+        const playText = document.getElementById('playText');
+
+        if (isPlaying) {
+            isPlaying = false;
+            playIcon.className = "fa-solid fa-play";
+            playText.innerText = "เล่นวิดีโอ Loop ย้อนหลัง";
+            clearInterval(playInterval);
+        } else {
+            isPlaying = true;
+            playIcon.className = "fa-solid fa-pause";
+            playText.innerText = "หยุดเล่น";
+
+            const startFrame = Math.max(0, radarImages.length - 12);
+            currentIndex = startFrame;
+
+            playInterval = setInterval(() => {
+                currentIndex++;
+                if (currentIndex >= radarImages.length) {
+                    currentIndex = startFrame;
+                }
+                updateSingleDisplay(currentIndex);
+            }, 800);
         }
+    }
 
-        function togglePlayLoop() {
-            const playIcon = document.getElementById('playIcon');
-            const playText = document.getElementById('playText');
-
-            if (isPlaying) {
-                isPlaying = false;
-                playIcon.className = "fa-solid fa-play";
-                playText.innerText = "เล่นวิดีโอ Loop ย้อนหลัง";
-                clearInterval(playInterval);
-            } else {
-                isPlaying = true;
-                playIcon.className = "fa-solid fa-pause";
-                playText.innerText = "หยุดเล่น";
-
-                const startFrame = Math.max(0, radarImages.length - 12);
-                currentIndex = startFrame;
-
-                // ช้าลงจาก 400ms เป็น 800ms ต่อเฟรม (0.8 วินาที)
-                playInterval = setInterval(() => {
-                    currentIndex++;
-                    if (currentIndex >= radarImages.length) {
-                        currentIndex = startFrame;
-                    }
-                    updateSingleDisplay(currentIndex);
-                }, 800);
-            }
-        }
-
-        function renderGridView() {
-            const gallery = document.getElementById('gridGallery');
-            gallery.innerHTML = radarImages.map((img, idx) => `
-                <div onclick="selectImageFromGrid(${idx})" class="cursor-pointer border border-slate-200 rounded-xl overflow-hidden bg-slate-900 hover:ring-4 hover:ring-blue-500/50 transition duration-200 shadow-sm hover:shadow-md group">
-                    <div class="relative bg-slate-950 flex items-center justify-center p-1 min-h-[220px]">
-                        <img src="${img.url}" alt="${img.filename}" class="w-full h-auto object-contain max-h-[300px] group-hover:scale-105 transition duration-200">
-                    </div>
-                    <div class="p-2.5 bg-slate-50 border-t border-slate-200 text-xs text-center font-medium text-slate-700 font-mono truncate">
-                        <i class="fa-regular fa-image text-blue-600 mr-1"></i> ${img.filename}
-                    </div>
+    function renderGridView() {
+        const gallery = document.getElementById('gridGallery');
+        gallery.innerHTML = radarImages.map((img, idx) => `
+            <div onclick="selectImageFromGrid(${idx})" class="cursor-pointer border border-slate-200 rounded-xl overflow-hidden bg-slate-900 hover:ring-4 hover:ring-blue-500/50 transition duration-200 shadow-sm hover:shadow-md group">
+                <div class="relative bg-slate-950 flex items-center justify-center p-1 min-h-[220px]">
+                    <img src="${img.url}" alt="${img.filename}" class="w-full h-auto object-contain max-h-[300px] group-hover:scale-105 transition duration-200">
                 </div>
-            `).join('');
+                <div class="p-2.5 bg-slate-50 border-t border-slate-200 text-xs text-center font-medium text-slate-700 font-mono truncate">
+                    <i class="fa-regular fa-image text-blue-600 mr-1"></i> ${img.filename}
+                </div>
+            </div>
+        `).join('');
+    }
+
+    function selectImageFromGrid(index) {
+        switchView('single');
+        updateSingleDisplay(index);
+    }
+
+    function switchView(mode) {
+        const singleBox = document.getElementById('singleViewContainer');
+        const gridBox = document.getElementById('gridViewContainer');
+        const singleBtn = document.getElementById('viewSingleBtn');
+        const gridBtn = document.getElementById('viewGridBtn');
+
+        if (mode === 'single') {
+            singleBox.classList.remove('hidden');
+            gridBox.classList.add('hidden');
+            singleBtn.className = "px-3 py-1.5 bg-blue-700 text-xs font-medium border border-blue-400 text-white rounded shadow-sm";
+            gridBtn.className = "px-3 py-1.5 bg-blue-900 text-xs font-medium text-slate-300 hover:text-white rounded";
+        } else {
+            if (isPlaying) togglePlayLoop();
+            singleBox.classList.add('hidden');
+            gridBox.classList.remove('hidden');
+            gridBtn.className = "px-3 py-1.5 bg-blue-700 text-xs font-medium border border-blue-400 text-white rounded shadow-sm";
+            singleBtn.className = "px-3 py-1.5 bg-blue-900 text-xs font-medium text-slate-300 hover:text-white rounded";
         }
+    }
 
-        function selectImageFromGrid(index) {
-            switchView('single');
-            updateSingleDisplay(index);
+    document.addEventListener('keydown', (e) => {
+        const singleBox = document.getElementById('singleViewContainer');
+        if (!singleBox.classList.contains('hidden')) {
+            if (e.key === 'ArrowLeft') prevImage();
+            if (e.key === 'ArrowRight') nextImage();
         }
+    });
 
-        function switchView(mode) {
-            const singleBox = document.getElementById('singleViewContainer');
-            const gridBox = document.getElementById('gridViewContainer');
-            const singleBtn = document.getElementById('viewSingleBtn');
-            const gridBtn = document.getElementById('viewGridBtn');
-
-            if (mode === 'single') {
-                singleBox.classList.remove('hidden');
-                gridBox.classList.add('hidden');
-                singleBtn.className = "px-3 py-1.5 bg-blue-700 text-xs font-medium border border-blue-400 text-white rounded shadow-sm";
-                gridBtn.className = "px-3 py-1.5 bg-blue-900 text-xs font-medium text-slate-300 hover:text-white rounded";
-            } else {
-                if (isPlaying) togglePlayLoop();
-                singleBox.classList.add('hidden');
-                gridBox.classList.remove('hidden');
-                gridBtn.className = "px-3 py-1.5 bg-blue-700 text-xs font-medium border border-blue-400 text-white rounded shadow-sm";
-                singleBtn.className = "px-3 py-1.5 bg-blue-900 text-xs font-medium text-slate-300 hover:text-white rounded";
-            }
-        }
-
-        document.addEventListener('keydown', (e) => {
-            const singleBox = document.getElementById('singleViewContainer');
-            if (!singleBox.classList.contains('hidden')) {
-                if (e.key === 'ArrowLeft') prevImage();
-                if (e.key === 'ArrowRight') nextImage();
-            }
-        });
-
-        loadRadarData();
-    </script>
+    loadRadarData();
+</script>
 </body>
 </html>
