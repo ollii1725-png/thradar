@@ -2,7 +2,7 @@ name: Auto Fetch Radar Images to Data Repo
 
 on:
   schedule:
-    - cron: '*/15 * * * *' # สั่งรันอัตโนมัติทุกๆ 15 นาที
+    - cron: "*/15 * * * *" # สั่งรันอัตโนมัติทุกๆ 15 นาที
   workflow_dispatch:
 
 jobs:
