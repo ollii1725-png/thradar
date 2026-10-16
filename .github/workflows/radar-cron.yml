@@ -1,0 +1,43 @@
+name: Auto Fetch Radar Images to Data Repo
+
+on:
+  schedule:
+    - cron: '*/15 * * * *' # สั่งรันอัตโนมัติทุกๆ 15 นาที
+  workflow_dispatch:
+
+jobs:
+  fetch-job:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Main Repository
+        uses: actions/checkout@v4
+
+      - name: Checkout Data Repository
+        uses: actions/checkout@v4
+        with:
+          repository: '${{ github.repository_owner }}/thradar-data-2026'
+          token: '${{ secrets.DATA_REPO_TOKEN }}'
+          path: 'data-repo'
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install requests beautifulsoup4
+
+      - name: Run Scraper Script
+        run: python fetch_radar.py
+
+      - name: Sync Images to Data Repo
+        run: |
+          mkdir -p data-repo/radar-images
+          cp -r radar-images/* data-repo/radar-images/ 2>/dev/null || true
+          cd data-repo
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add radar-images/
+          git diff --staged --quiet || (git commit -m "Auto update radar images" && git push)
