@@ -3,270 +3,319 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>thradar - ระบบติดตามภาพเรดาร์ฝนหลวง</title>
+    <title>ระบบแสดงภาพเรดาร์ฝนหลวง (Real-time & 24h Loop)</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
-<body class="bg-slate-100 min-h-screen text-slate-800">
+<body class="bg-slate-900 text-slate-100 min-h-screen font-sans">
 
-    <!-- Header -->
-    <header class="bg-blue-900 text-white p-4 shadow-md sticky top-0 z-50">
-        <div class="max-w-6xl mx-auto flex justify-between items-center">
-            <h1 class="text-lg md:text-xl font-bold flex items-center gap-2">
-                <i class="fa-solid fa-satellite-dish text-sky-400"></i> thradar
-            </h1>
+    <!-- Header Bar -->
+    <header class="bg-slate-800 border-b border-slate-700 sticky top-0 z-50 shadow-md">
+        <div class="max-w-7xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-4">
+            <div class="flex items-center gap-3">
+                <i class="fa-solid fa-cloud-showers-heavy text-blue-400 text-2xl"></i>
+                <h1 class="text-xl font-bold bg-gradient-to-r from-blue-400 to-indigo-300 bg-clip-text text-transparent">
+                    ภาพเรดาร์ตรวจอากาศฝนหลวง
+                </h1>
+            </div>
             <div class="flex items-center gap-2">
-                <button id="viewSingleBtn" onclick="switchView('single')" class="px-3 py-1.5 bg-blue-700 rounded text-xs font-medium border border-blue-400 text-white">
-                    <i class="fa-solid fa-image"></i> ดูภาพเดี่ยว
+                <button id="viewSingleBtn" onclick="switchView('single')" class="px-3 py-1.5 bg-blue-700 text-xs font-medium border border-blue-400 text-white rounded shadow-sm">
+                    <i class="fa-solid fa-circle-play mr-1"></i> โหมดสไลด์/วิดีโอ
                 </button>
-                <button id="viewGridBtn" onclick="switchView('grid')" class="px-3 py-1.5 bg-blue-900 rounded text-xs font-medium text-slate-300 hover:text-white">
-                    <i class="fa-solid fa-border-all"></i> ดูกริด
+                <button id="viewGridBtn" onclick="switchView('grid')" class="px-3 py-1.5 bg-blue-900 text-xs font-medium text-slate-300 hover:text-white rounded">
+                    <i class="fa-solid fa-border-all mr-1"></i> โหมดตารางกริด
                 </button>
             </div>
         </div>
     </header>
 
-    <main class="max-w-6xl mx-auto p-3 sm:p-4 space-y-4">
-        <!-- Control Panel -->
-        <div class="bg-white rounded-xl p-3 shadow-sm border border-slate-200 grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div>
-                <label class="block text-xs font-semibold text-slate-500 mb-1">สถานีเรดาร์</label>
-                <select id="stationSelect" onchange="loadRadarData()" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2 text-sm font-medium">
-                    <option value="sattahip">สัตหีบ</option>
-                    <option value="omkoi">อมก๋อย</option>
-                    <option value="phnom">พนม</option>
-                    <option value="takli">ตาคลี</option>
-                    <option value="phimai">พิมาย</option>
-                </select>
-            </div>
-            <div>
-                <label class="block text-xs font-semibold text-slate-500 mb-1">เลือกวันที่ดูย้อนหลัง</label>
-                <input type="date" id="datePicker" onchange="loadRadarData()" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2 text-sm font-medium">
+    <main class="max-w-7xl mx-auto px-4 py-6">
+
+        <!-- Controls Section -->
+        <div class="bg-slate-800 rounded-xl p-4 border border-slate-700 mb-6 shadow-sm">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
+                
+                <div>
+                    <label class="block text-xs font-medium text-slate-400 mb-1">เลือกสถานีเรดาร์</label>
+                    <select id="stationSelect" onchange="loadRadarData()" class="w-full bg-slate-900 border border-slate-600 text-white rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="sattahip">สถานีสัตหีบ (ชลบุรี)</option>
+                        <option value="omkoi">สถานีอมก๋อย (เชียงใหม่)</option>
+                        <option value="phnom">สถานีพนม (สุราษฎร์ธานี)</option>
+                        <option value="takli">สถานีตาคลี (นครสวรรค์)</option>
+                        <option value="phimai">สถานีพิมาย (นครราชสีมา)</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-medium text-slate-400 mb-1">เลือกวันที่ดูย้อนหลัง</label>
+                    <input type="date" id="datePicker" onchange="loadRadarData()" class="w-full bg-slate-900 border border-slate-600 text-white rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+
+                <div class="flex items-end h-full pt-5">
+                    <button id="latestBtn" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-medium py-2 px-4 rounded-lg text-sm transition flex items-center justify-center gap-2 shadow">
+                        <i class="fa-solid fa-bolt text-amber-300"></i> ดูภาพปัจจุบัน (Direct Real-time)
+                    </button>
+                </div>
+
             </div>
         </div>
 
         <!-- Single View Container -->
-        <div id="singleViewContainer" class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-            <div class="p-3 bg-slate-50 border-b border-slate-200 flex justify-between items-center text-xs text-slate-600">
-                <span><i class="fa-regular fa-clock text-blue-600 mr-1"></i> ไฟล์: <strong id="timeDisplay">กำลังโหลด...</strong></span>
-                <span id="frameCounter" class="bg-slate-200 px-2.5 py-0.5 rounded-full font-mono text-xs">0 / 0</span>
-            </div>
-
-            <!-- Display Area: Expanded Area for Larger Radar Image -->
-            <div class="relative bg-white flex items-center justify-center min-h-[480px] sm:min-h-[650px] p-2 select-none border-b border-slate-100">
-                <!-- Prev Button (Transparent) -->
-                <button id="prevBtn" onclick="prevImage()" class="absolute left-2 top-1/2 -translate-y-1/2 z-10 p-2 text-slate-700 hover:text-slate-900 transition disabled:opacity-0 disabled:cursor-not-allowed drop-shadow-[0_1px_2px_rgba(255,255,255,0.9)]">
-                    <i class="fa-solid fa-chevron-left text-3xl sm:text-4xl"></i>
-                </button>
-
-                <!-- Main Radar Image: Max height increased to 680px -->
-                <img id="radarImg" src="" alt="Radar Image" class="max-w-full max-h-[680px] object-contain transition-all duration-150">
-
-                <!-- Next Button (Transparent) -->
-                <button id="nextBtn" onclick="nextImage()" class="absolute right-2 top-1/2 -translate-y-1/2 z-10 p-2 text-slate-700 hover:text-slate-900 transition disabled:opacity-0 disabled:cursor-not-allowed drop-shadow-[0_1px_2px_rgba(255,255,255,0.9)]">
-                    <i class="fa-solid fa-chevron-right text-3xl sm:text-4xl"></i>
-                </button>
-
-                <!-- Loading Spinner -->
-                <div id="loadingSpinner" class="absolute inset-0 bg-white/80 flex items-center justify-center text-slate-700 text-sm">
-                    <i class="fa-solid fa-spinner fa-spin text-3xl mr-2 text-blue-600"></i> กำลังดึงข้อมูล...
-                </div>
-            </div>
-
-            <!-- Controls / Slider & Action Buttons -->
-            <div class="p-3 bg-slate-50 border-t border-slate-200 space-y-3">
-                <input type="range" id="timelineSlider" min="0" max="0" value="0" oninput="onSliderChange(this.value)" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-600">
+        <div id="singleViewContainer" class="space-y-4">
+            
+            <div class="bg-slate-950 border border-slate-800 rounded-2xl p-2 relative flex items-center justify-center min-h-[400px] shadow-inner">
                 
-                <div class="flex flex-wrap justify-center items-center gap-2.5">
-                    <button id="playBtn" onclick="togglePlayLoop()" class="px-5 py-2 rounded-full bg-blue-600 hover:bg-blue-700 text-white text-xs sm:text-sm font-medium flex items-center gap-2 shadow transition">
-                        <i id="playIcon" class="fa-solid fa-play"></i>
-                        <span id="playText">เล่นวิดีโอ Loop ย้อนหลัง</span>
+                <!-- Loading Spinner -->
+                <div id="loadingSpinner" class="absolute inset-0 bg-slate-950/80 z-10 flex flex-col items-center justify-center gap-2 rounded-2xl">
+                    <i class="fa-solid fa-spinner fa-spin text-blue-500 text-3xl"></i>
+                    <span class="text-xs text-slate-400">กำลังโหลดภาพเรดาร์...</span>
+                </div>
+
+                <img id="radarImg" src="" alt="Radar Display" class="max-h-[600px] w-auto object-contain rounded-lg">
+            </div>
+
+            <!-- Single Control Bar -->
+            <div class="bg-slate-800 rounded-xl p-4 border border-slate-700 flex flex-col gap-3">
+                
+                <div class="flex items-center justify-between text-xs text-slate-400 font-mono">
+                    <span id="timeDisplay" class="font-bold text-slate-200 text-sm">กำลังโหลดข้อมูล...</span>
+                    <span id="frameCounter">0 / 0</span>
+                </div>
+
+                <input type="range" id="timelineSlider" min="0" max="0" value="0" oninput="onSliderChange(this.value)" class="w-full accent-blue-500 cursor-pointer">
+
+                <div class="flex flex-wrap items-center justify-center gap-3 pt-2">
+                    <button id="prevBtn" onclick="prevImage()" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-lg text-sm font-medium transition disabled:opacity-40">
+                        <i class="fa-solid fa-chevron-left mr-1"></i> ย้อนหลัง
+                    </button>
+                    
+                    <button id="playBtn" onclick="togglePlayLoop()" class="px-6 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-sm font-medium transition flex items-center gap-2 shadow">
+                        <i id="playIcon" class="fa-solid fa-play"></i> <span id="playText">เล่นวิดีโอ Loop ย้อนหลัง</span>
                     </button>
 
-                    <button id="latestBtn" onclick="goToLatestImage()" class="px-4 py-2 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white text-xs sm:text-sm font-medium flex items-center gap-1.5 shadow transition">
-                        <i class="fa-solid fa-rotate-right"></i>
-                        <span>ดูภาพปัจจุบัน</span>
+                    <button id="nextBtn" onclick="nextImage()" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-lg text-sm font-medium transition disabled:opacity-40">
+                        ถัดไป <i class="fa-solid fa-chevron-right ml-1"></i>
                     </button>
                 </div>
+
             </div>
+
         </div>
 
         <!-- Grid View Container -->
-        <div id="gridViewContainer" class="hidden bg-white rounded-xl p-4 shadow-sm border border-slate-200">
-            <h2 class="text-sm font-bold text-slate-700 mb-4 flex items-center gap-2">
-                <i class="fa-solid fa-border-all text-blue-600"></i> ภาพเรดาร์ทั้งหมดในวันที่เลือก (กดที่ภาพเพื่อดูภาพขยาย)
-            </h2>
-            <div id="gridGallery" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4"></div>
+        <div id="gridViewContainer" class="hidden">
+            <div id="gridGallery" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                <!-- JS will render images here -->
+            </div>
         </div>
+
     </main>
 
     <script>
-    // ตั้งค่า Date Picker เป็นวันที่ปัจจุบันตามเวลาท้องถิ่น
-    const now = new Date();
-    const year = now.getFullYear();
-    const month = String(now.getMonth() + 1).padStart(2, '0');
-    const day = String(now.getDate()).padStart(2, '0');
-    document.getElementById('datePicker').value = `${year}-${month}-${day}`;
+        // ตั้งค่า Date Picker เป็นวันที่ปัจจุบัน
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = String(now.getMonth() + 1).padStart(2, '0');
+        const day = String(now.getDate()).padStart(2, '0');
+        document.getElementById('datePicker').value = `${year}-${month}-${day}`;
 
-    let radarImages = [];
-    let currentIndex = 0;
-    let isPlaying = false;
-    let playInterval = null;
+        let radarImages = [];
+        let currentIndex = 0;
+        let isPlaying = false;
+        let playInterval = null;
 
-    async function loadRadarData() {
-        const station = document.getElementById('stationSelect').value;
-        const selectedDate = document.getElementById('datePicker').value; // YYYY-MM-DD
-        const [year, month, day] = selectedDate.split('-');
-        const spinner = document.getElementById('loadingSpinner');
-        if (spinner) spinner.style.display = 'flex';
+        const DIRECT_STATION_URLS = {
+            sattahip: "https://file.royalrain.go.th/opendata/radar_data/cappi/?station=sattahip",
+            omkoi: "https://file.royalrain.go.th/opendata/radar_data/cappi/?station=omkoi",
+            phnom: "https://file.royalrain.go.th/opendata/radar_data/cappi/?station=phnom",
+            takli: "https://file.royalrain.go.th/opendata/radar_data/cappi/?station=takli",
+            phimai: "https://file.royalrain.go.th/opendata/radar_data/cappi/?station=phimai"
+        };
 
-        const username = window.location.hostname.split('.')[0];
-        const dataRepo = `thradar-data-${year}`;
-        const apiUrl = `https://api.github.com/repos/${username}/${dataRepo}/contents/radar-images/${station}/${year}/${month}/${day}`;
+        async function loadRadarData() {
+            const station = document.getElementById('stationSelect').value;
+            const selectedDate = document.getElementById('datePicker').value;
+            const [year, month, day] = selectedDate.split('-');
+            const spinner = document.getElementById('loadingSpinner');
+            if (spinner) spinner.style.display = 'flex';
 
-        try {
-            const res = await fetch(apiUrl);
-            if (res.ok) {
-                const data = await res.json();
-                radarImages = data
-                    .filter(file => file.name.endsWith('.png'))
-                    .map(file => ({ filename: file.name, url: file.download_url }));
-            } else {
+            const username = window.location.hostname.split('.')[0] || "ollii1725-png";
+            const dataRepo = `thradar-data-${station}`;
+            const apiUrl = `https://api.github.com/repos/${username}/${dataRepo}/contents/radar-images/${station}/${year}/${month}/${day}`;
+
+            try {
+                const res = await fetch(apiUrl);
+                if (res.ok) {
+                    const data = await res.json();
+                    radarImages = data
+                        .filter(file => file.name.endsWith('.png'))
+                        .map(file => ({ filename: file.name, url: file.download_url }));
+                } else {
+                    radarImages = [];
+                }
+            } catch (e) {
                 radarImages = [];
             }
-        } catch (e) {
-            radarImages = [];
+
+            if (radarImages.length === 0) {
+                document.getElementById('timeDisplay').innerText = "ไม่พบภาพในวันที่เลือก";
+                if (spinner) spinner.style.display = 'none';
+                document.getElementById('gridGallery').innerHTML = '<p class="col-span-full text-center text-sm text-slate-400 py-10">ไม่มีข้อมูลภาพเรดาร์ในระบบประจำวันที่เลือก</p>';
+                document.getElementById('prevBtn').disabled = true;
+                document.getElementById('nextBtn').disabled = true;
+                return;
+            }
+
+            document.getElementById('timelineSlider').max = radarImages.length - 1;
+            currentIndex = radarImages.length - 1;
+            updateSingleDisplay(currentIndex);
+            renderGridView();
         }
 
-        if (radarImages.length === 0) {
-            document.getElementById('timeDisplay').innerText = "ไม่พบภาพในวันที่เลือก";
-            if (spinner) spinner.style.display = 'none';
-            document.getElementById('gridGallery').innerHTML = '<p class="col-span-full text-center text-sm text-slate-400 py-10">ไม่มีข้อมูลภาพเรดาร์ในระบบประจำวันที่เลือก</p>';
-            document.getElementById('prevBtn').disabled = true;
-            document.getElementById('nextBtn').disabled = true;
-            return;
-        }
-
-        document.getElementById('timelineSlider').max = radarImages.length - 1;
-        currentIndex = radarImages.length - 1; // แสดงภาพล่าสุด
-        updateSingleDisplay(currentIndex);
-        renderGridView();
-    }
-
-    function updateSingleDisplay(index) {
-        currentIndex = parseInt(index);
-        const item = radarImages[currentIndex];
-        document.getElementById('radarImg').src = item.url;
-        document.getElementById('timeDisplay').innerText = item.filename;
-        document.getElementById('frameCounter').innerText = `${currentIndex + 1} / ${radarImages.length}`;
-        document.getElementById('timelineSlider').value = currentIndex;
-        
-        document.getElementById('prevBtn').disabled = (currentIndex === 0);
-        document.getElementById('nextBtn').disabled = (currentIndex === radarImages.length - 1);
-        
-        const spinner = document.getElementById('loadingSpinner');
-        if (spinner) spinner.style.display = 'none';
-    }
-
-    function prevImage() {
-        if (currentIndex > 0) {
-            updateSingleDisplay(currentIndex - 1);
-        }
-    }
-
-    function nextImage() {
-        if (currentIndex < radarImages.length - 1) {
-            updateSingleDisplay(currentIndex + 1);
-        }
-    }
-
-    function goToLatestImage() {
-        if (isPlaying) togglePlayLoop();
-        if (radarImages.length > 0) {
-            updateSingleDisplay(radarImages.length - 1);
-        }
-    }
-
-    function onSliderChange(val) {
-        if (isPlaying) togglePlayLoop();
-        updateSingleDisplay(val);
-    }
-
-    function togglePlayLoop() {
-        const playIcon = document.getElementById('playIcon');
-        const playText = document.getElementById('playText');
-
-        if (isPlaying) {
-            isPlaying = false;
-            playIcon.className = "fa-solid fa-play";
-            playText.innerText = "เล่นวิดีโอ Loop ย้อนหลัง";
-            clearInterval(playInterval);
-        } else {
-            isPlaying = true;
-            playIcon.className = "fa-solid fa-pause";
-            playText.innerText = "หยุดเล่น";
-
-            const startFrame = Math.max(0, radarImages.length - 12);
-            currentIndex = startFrame;
-
-            playInterval = setInterval(() => {
-                currentIndex++;
-                if (currentIndex >= radarImages.length) {
-                    currentIndex = startFrame;
-                }
-                updateSingleDisplay(currentIndex);
-            }, 800);
-        }
-    }
-
-    function renderGridView() {
-        const gallery = document.getElementById('gridGallery');
-        gallery.innerHTML = radarImages.map((img, idx) => `
-            <div onclick="selectImageFromGrid(${idx})" class="cursor-pointer border border-slate-200 rounded-xl overflow-hidden bg-slate-900 hover:ring-4 hover:ring-blue-500/50 transition duration-200 shadow-sm hover:shadow-md group">
-                <div class="relative bg-slate-950 flex items-center justify-center p-1 min-h-[220px]">
-                    <img src="${img.url}" alt="${img.filename}" class="w-full h-auto object-contain max-h-[300px] group-hover:scale-105 transition duration-200">
-                </div>
-                <div class="p-2.5 bg-slate-50 border-t border-slate-200 text-xs text-center font-medium text-slate-700 font-mono truncate">
-                    <i class="fa-regular fa-image text-blue-600 mr-1"></i> ${img.filename}
-                </div>
-            </div>
-        `).join('');
-    }
-
-    function selectImageFromGrid(index) {
-        switchView('single');
-        updateSingleDisplay(index);
-    }
-
-    function switchView(mode) {
-        const singleBox = document.getElementById('singleViewContainer');
-        const gridBox = document.getElementById('gridViewContainer');
-        const singleBtn = document.getElementById('viewSingleBtn');
-        const gridBtn = document.getElementById('viewGridBtn');
-
-        if (mode === 'single') {
-            singleBox.classList.remove('hidden');
-            gridBox.classList.add('hidden');
-            singleBtn.className = "px-3 py-1.5 bg-blue-700 text-xs font-medium border border-blue-400 text-white rounded shadow-sm";
-            gridBtn.className = "px-3 py-1.5 bg-blue-900 text-xs font-medium text-slate-300 hover:text-white rounded";
-        } else {
+        async function fetchRealtimeLatestImage() {
             if (isPlaying) togglePlayLoop();
-            singleBox.classList.add('hidden');
-            gridBox.classList.remove('hidden');
-            gridBtn.className = "px-3 py-1.5 bg-blue-700 text-xs font-medium border border-blue-400 text-white rounded shadow-sm";
-            singleBtn.className = "px-3 py-1.5 bg-blue-900 text-xs font-medium text-slate-300 hover:text-white rounded";
-        }
-    }
+            const station = document.getElementById('stationSelect').value;
+            const spinner = document.getElementById('loadingSpinner');
+            if (spinner) spinner.style.display = 'flex';
 
-    document.addEventListener('keydown', (e) => {
-        const singleBox = document.getElementById('singleViewContainer');
-        if (!singleBox.classList.contains('hidden')) {
-            if (e.key === 'ArrowLeft') prevImage();
-            if (e.key === 'ArrowRight') nextImage();
-        }
-    });
+            try {
+                const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(DIRECT_STATION_URLS[station])}`;
+                const res = await fetch(proxyUrl);
+                const data = await res.json();
+                
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(data.contents, 'text/html');
+                const imgs = Array.from(doc.querySelectorAll('img'))
+                    .map(img => img.getAttribute('src'))
+                    .filter(src => src && (src.includes('dBZ') || src.includes('cappi')) && !src.includes('logo'));
 
-    loadRadarData();
-</script>
+                if (imgs.length > 0) {
+                    const latestSrc = imgs[imgs.length - 1];
+                    const fullUrl = latestSrc.startsWith('http') ? latestSrc : `https://file.royalrain.go.th${latestSrc}`;
+                    const filename = latestSrc.split('/').pop().split('?')[0];
+
+                    document.getElementById('radarImg').src = fullUrl;
+                    document.getElementById('timeDisplay').innerHTML = `<span class="text-emerald-400 font-bold">[Real-time ล่าสุด]</span> ${filename}`;
+                } else {
+                    goToLatestImage();
+                }
+            } catch (e) {
+                goToLatestImage();
+            } finally {
+                if (spinner) spinner.style.display = 'none';
+            }
+        }
+
+        function updateSingleDisplay(index) {
+            currentIndex = parseInt(index);
+            const item = radarImages[currentIndex];
+            document.getElementById('radarImg').src = item.url;
+            document.getElementById('timeDisplay').innerText = item.filename;
+            document.getElementById('frameCounter').innerText = `${currentIndex + 1} / ${radarImages.length}`;
+            document.getElementById('timelineSlider').value = currentIndex;
+            
+            document.getElementById('prevBtn').disabled = (currentIndex === 0);
+            document.getElementById('nextBtn').disabled = (currentIndex === radarImages.length - 1);
+            
+            const spinner = document.getElementById('loadingSpinner');
+            if (spinner) spinner.style.display = 'none';
+        }
+
+        function prevImage() {
+            if (currentIndex > 0) updateSingleDisplay(currentIndex - 1);
+        }
+
+        function nextImage() {
+            if (currentIndex < radarImages.length - 1) updateSingleDisplay(currentIndex + 1);
+        }
+
+        function goToLatestImage() {
+            if (isPlaying) togglePlayLoop();
+            if (radarImages.length > 0) updateSingleDisplay(radarImages.length - 1);
+        }
+
+        function onSliderChange(val) {
+            if (isPlaying) togglePlayLoop();
+            updateSingleDisplay(val);
+        }
+
+        function togglePlayLoop() {
+            const playIcon = document.getElementById('playIcon');
+            const playText = document.getElementById('playText');
+
+            if (isPlaying) {
+                isPlaying = false;
+                playIcon.className = "fa-solid fa-play";
+                playText.innerText = "เล่นวิดีโอ Loop ย้อนหลัง";
+                clearInterval(playInterval);
+            } else {
+                isPlaying = true;
+                playIcon.className = "fa-solid fa-pause";
+                playText.innerText = "หยุดเล่น";
+
+                const startFrame = Math.max(0, radarImages.length - 12);
+                currentIndex = startFrame;
+
+                playInterval = setInterval(() => {
+                    currentIndex++;
+                    if (currentIndex >= radarImages.length) {
+                        currentIndex = startFrame;
+                    }
+                    updateSingleDisplay(currentIndex);
+                }, 800);
+            }
+        }
+
+        function renderGridView() {
+            const gallery = document.getElementById('gridGallery');
+            gallery.innerHTML = radarImages.map((img, idx) => `
+                <div onclick="selectImageFromGrid(${idx})" class="cursor-pointer border border-slate-700 rounded-xl overflow-hidden bg-slate-900 hover:ring-4 hover:ring-blue-500/50 transition duration-200 shadow-sm hover:shadow-md group">
+                    <div class="relative bg-slate-950 flex items-center justify-center p-1 min-h-[220px]">
+                        <img src="${img.url}" alt="${img.filename}" class="w-full h-auto object-contain max-h-[300px] group-hover:scale-105 transition duration-200">
+                    </div>
+                    <div class="p-2.5 bg-slate-800 border-t border-slate-700 text-xs text-center font-medium text-slate-300 font-mono truncate">
+                        <i class="fa-regular fa-image text-blue-400 mr-1"></i> ${img.filename}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function selectImageFromGrid(index) {
+            switchView('single');
+            updateSingleDisplay(index);
+        }
+
+        function switchView(mode) {
+            const singleBox = document.getElementById('singleViewContainer');
+            const gridBox = document.getElementById('gridViewContainer');
+            const singleBtn = document.getElementById('viewSingleBtn');
+            const gridBtn = document.getElementById('viewGridBtn');
+
+            if (mode === 'single') {
+                singleBox.classList.remove('hidden');
+                gridBox.classList.add('hidden');
+                singleBtn.className = "px-3 py-1.5 bg-blue-700 text-xs font-medium border border-blue-400 text-white rounded shadow-sm";
+                gridBtn.className = "px-3 py-1.5 bg-blue-900 text-xs font-medium text-slate-300 hover:text-white rounded";
+            } else {
+                if (isPlaying) togglePlayLoop();
+                singleBox.classList.add('hidden');
+                gridBox.classList.remove('hidden');
+                gridBtn.className = "px-3 py-1.5 bg-blue-700 text-xs font-medium border border-blue-400 text-white rounded shadow-sm";
+                singleBtn.className = "px-3 py-1.5 bg-blue-900 text-xs font-medium text-slate-300 hover:text-white rounded";
+            }
+        }
+
+        document.addEventListener('keydown', (e) => {
+            const singleBox = document.getElementById('singleViewContainer');
+            if (!singleBox.classList.contains('hidden')) {
+                if (e.key === 'ArrowLeft') prevImage();
+                if (e.key === 'ArrowRight') nextImage();
+            }
+        });
+
+        document.getElementById('latestBtn').onclick = fetchRealtimeLatestImage;
+
+        loadRadarData();
+    </script>
 </body>
 </html>
