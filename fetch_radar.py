@@ -7,7 +7,7 @@ from PIL import Image
 
 BASE_URL = "https://file.royalrain.go.th/opendata/radar_data/cappi/"
 BASE_SAVE_DIR = "radar-images"
-LOGO_PATH = "logo.png" 
+LOGO_PATH = "logo.png"
 
 STATIONS = {
     "sattahip": "สัตหีบ",
@@ -21,17 +21,15 @@ headers = {
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
 }
 
-def parse_filename_to_thai_date(filename):
-    """แกะเวลา UTC จากชื่อไฟล์ แล้วบวกเพิ่ม 7 ชั่วโมง เป็นเวลาไทย (UTC+7)"""
+def parse_filename_to_datetime(filename):
+    """แกะปี-เดือน-วัน-เวลา (UTC) จากชื่อไฟล์ แล้วแปลงเป็น datetime เวลาไทย (UTC+7)"""
     match = re.search(r'(\d{4})(\d{2})(\d{2})(\d{2})(\d{2})', filename)
     if match:
-        year, month, day, hour, minute = match.groups()
-        utc_dt = datetime.datetime(int(year), int(month), int(day), int(hour), int(minute))
+        year, month, day, hour, minute = map(int, match.groups())
+        utc_dt = datetime.datetime(year, month, day, hour, minute)
         thai_dt = utc_dt + datetime.timedelta(hours=7)
-        return thai_dt.strftime("%Y"), thai_dt.strftime("%m"), thai_dt.strftime("%d")
-    
-    now_thai = datetime.datetime.utcnow() + datetime.timedelta(hours=7)
-    return now_thai.strftime("%Y"), now_thai.strftime("%m"), now_thai.strftime("%d")
+        return thai_dt
+    return None
 
 def apply_logo_only(image_path):
     """ประทับภาพโลโก้ไว้ที่มุมซ้ายบนบนภาพขนาดต้นฉบับ"""
@@ -50,9 +48,44 @@ def apply_logo_only(image_path):
     except Exception as e:
         print(f"   [!] เกิดข้อผิดพลาดในการใส่โลโก้: {e}")
 
+def cleanup_old_images_24h():
+    """ตรวจสอบและลบไฟล์ภาพที่มีอายุเก่าเกิน 24 ชั่วโมง"""
+    print("\n--- เริ่มตรวจสอบและลบไฟล์ภาพที่เก่าเกิน 24 ชั่วโมง ---")
+    now_thai = datetime.datetime.utcnow() + datetime.timedelta(hours=7)
+    time_limit = now_thai - datetime.timedelta(hours=24)
+    deleted_count = 0
+
+    if not os.path.exists(BASE_SAVE_DIR):
+        return
+
+    for root, dirs, files in os.walk(BASE_SAVE_DIR):
+        for file in files:
+            if file.endswith('.png'):
+                file_dt = parse_filename_to_datetime(file)
+                if file_dt and file_dt < time_limit:
+                    filepath = os.path.join(root, file)
+                    try:
+                        os.remove(filepath)
+                        deleted_count += 1
+                        print(f"   [-] ลบไฟล์เก่าเกิน 24 ชม.: {file}")
+                    except Exception as e:
+                        print(f"   [!] ไม่สามารถลบไฟล์ {file}: {e}")
+
+    # ลบโฟลเดอร์ว่างที่ไม่มีไฟล์เหลืออยู่
+    for root, dirs, files in os.walk(BASE_SAVE_DIR, topdown=False):
+        for d in dirs:
+            dir_path = os.path.join(root, d)
+            if not os.listdir(dir_path):
+                try:
+                    os.rmdir(dir_path)
+                except Exception:
+                    pass
+
+    print(f"--- ทำความสะอาดเสร็จสิ้น: ลบไฟล์เก่าออกทั้งหมด {deleted_count} ภาพ ---\n")
+
 def process_station_check_all_today(station_name, station_label):
     url = f"{BASE_URL}?station={station_name}"
-    print(f"\n--- เริ่มตรวจสอบภาพย้อนหลังประจำวัน สถานี: {station_name} ({station_label}) ---")
+    print(f"--- เริ่มดาวน์โหลดภาพ สถานี: {station_name} ({station_label}) ---")
 
     try:
         response = requests.get(url, headers=headers, timeout=15)
@@ -75,18 +108,20 @@ def process_station_check_all_today(station_name, station_label):
             return
 
         now_thai = datetime.datetime.utcnow() + datetime.timedelta(hours=7)
-        today_year = now_thai.strftime("%Y")
-        today_month = now_thai.strftime("%m")
-        today_day = now_thai.strftime("%d")
+        time_limit = now_thai - datetime.timedelta(hours=24)
 
         download_count = 0
         skip_count = 0
 
         for img_url in img_urls:
             filename = os.path.basename(img_url.split('?')[0])
-            thai_year, thai_month, thai_day = parse_filename_to_thai_date(filename)
+            file_dt = parse_filename_to_datetime(filename)
 
-            if thai_year == today_year and thai_month == today_month and thai_day == today_day:
+            if file_dt and file_dt >= time_limit:
+                thai_year = file_dt.strftime("%Y")
+                thai_month = file_dt.strftime("%m")
+                thai_day = file_dt.strftime("%d")
+
                 save_dir = os.path.join(BASE_SAVE_DIR, station_name, thai_year, thai_month, thai_day)
                 os.makedirs(save_dir, exist_ok=True)
                 filepath = os.path.join(save_dir, filename)
@@ -102,15 +137,20 @@ def process_station_check_all_today(station_name, station_label):
 
                     apply_logo_only(filepath)
                     download_count += 1
-                    print(f"   [+] โหลดภาพย้อนหลังเพิ่ม: {filename} (เวลาไทย: {thai_year}-{thai_month}-{thai_day})")
+                    print(f"   [+] โหลดภาพใหม่: {filename}")
 
-        print(f"[{station_name}] สรุปวันนี้ ({today_year}-{today_month}-{today_day}): โหลดเพิ่ม {download_count} ภาพ | มีอยู่แล้ว {skip_count} ภาพ")
+        print(f"[{station_name}] สรุป: โหลดเพิ่ม {download_count} ภาพ | มีอยู่แล้ว {skip_count} ภาพ\n")
 
     except Exception as e:
         print(f"[{station_name}] เกิดข้อผิดพลาด: {e}")
 
 def main():
     os.makedirs(BASE_SAVE_DIR, exist_ok=True)
+    
+    # 1. ลบไฟล์ภาพเก่าเกิน 24 ชั่วโมงออกก่อน
+    cleanup_old_images_24h()
+
+    # 2. ดาวน์โหลดภาพใหม่เฉพาะช่วง 24 ชั่วโมงล่าสุด
     for station_name, label in STATIONS.items():
         process_station_check_all_today(station_name, label)
 
