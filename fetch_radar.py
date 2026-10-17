@@ -22,52 +22,34 @@ headers = {
 }
 
 def parse_filename_to_thai_date(filename):
-    """
-    แกะเวลา UTC จากชื่อไฟล์ (เช่น 2026101617290000dBZ -> YYYY=2026, MM=10, DD=16, HH=17, MM=29)
-    แล้วบวกเพิ่ม 7 ชั่วโมง ให้เป็นเวลาไทย (UTC+7)
-    """
+    """แกะเวลา UTC จากชื่อไฟล์ แล้วบวกเพิ่ม 7 ชั่วโมง เป็นเวลาไทย (UTC+7)"""
     match = re.search(r'(\d{4})(\d{2})(\d{2})(\d{2})(\d{2})', filename)
     if match:
         year, month, day, hour, minute = match.groups()
-        # สร้างวัตถุ datetime เป็นเวลา UTC
         utc_dt = datetime.datetime(int(year), int(month), int(day), int(hour), int(minute))
-        # แปลงเป็นเวลาไทย (UTC + 7 Hours)
         thai_dt = utc_dt + datetime.timedelta(hours=7)
-        
-        # คืนค่า (ปีไทย, เดือนไทย, วันไทย)
         return thai_dt.strftime("%Y"), thai_dt.strftime("%m"), thai_dt.strftime("%d")
     
-    # กรณีชื่อไฟล์ไม่มีรูปแบบเวลามาตรฐาน ให้ใช้เวลาปัจจุบัน (UTC+7)
     now_thai = datetime.datetime.utcnow() + datetime.timedelta(hours=7)
     return now_thai.strftime("%Y"), now_thai.strftime("%m"), now_thai.strftime("%d")
 
-def apply_logo_only(image_path, target_width=800):
-    """ย่อขนาดภาพเพื่อประหยัดพื้นที่ + ประทับภาพโลโก้ไว้ที่มุมซ้ายบน"""
+def apply_logo_only(image_path):
+    """ประทับภาพโลโก้ไว้ที่มุมซ้ายบนบนภาพขนาดต้นฉบับ"""
     try:
-        with Image.open(image_path).convert("RGBA") as base_img:
-            
-            # 1. ย่อขนาดภาพเรดาร์ (Resize) รักษาอัตราส่วนเดิม
-            if base_img.width > target_width:
-                aspect_ratio = base_img.height / base_img.width
-                target_height = int(target_width * aspect_ratio)
-                base_img = base_img.resize((target_width, target_height), Image.Resampling.LANCZOS)
-
-            # 2. แปะภาพโลโก้ที่มุมซ้ายบน (ถ้ามีไฟล์ LOGO_PATH)
-            if os.path.exists(LOGO_PATH):
+        if os.path.exists(LOGO_PATH):
+            with Image.open(image_path).convert("RGBA") as base_img:
                 with Image.open(LOGO_PATH).convert("RGBA") as logo:
-                    logo_width = 60 # ปรับขนาดโลโก้ให้พอดีกับภาพที่ย่อแล้ว
+                    logo_width = 80
                     aspect_ratio = logo.height / logo.width
                     logo_height = int(logo_width * aspect_ratio)
                     logo = logo.resize((logo_width, logo_height), Image.Resampling.LANCZOS)
                     
-                    base_img.paste(logo, (10, 10), logo)
+                    base_img.paste(logo, (15, 15), logo)
 
-            # 3. บันทึกภาพทับไฟล์เดิมในรูปแบบ RGB พร้อมบีบอัดความจุ
-            base_img.convert("RGB").save(image_path, "PNG", optimize=True)
-            print(f"   [+] ย่อขนาดภาพเหลือความกว้าง {target_width}px เรียบร้อย")
-
+                base_img.convert("RGB").save(image_path)
     except Exception as e:
-        print(f"   [!] เกิดข้อผิดพลาดในการปรับขนาดภาพ: {e}")
+        print(f"   [!] เกิดข้อผิดพลาดในการใส่โลโก้: {e}")
+
 def process_station_check_all_today(station_name, station_label):
     url = f"{BASE_URL}?station={station_name}"
     print(f"\n--- เริ่มตรวจสอบภาพย้อนหลังประจำวัน สถานี: {station_name} ({station_label}) ---")
@@ -80,7 +62,6 @@ def process_station_check_all_today(station_name, station_label):
 
         soup = BeautifulSoup(response.text, 'html.parser')
         
-        # 1. กวาดหา URL ภาพเรดาร์ทั้งหมดที่มีบนหน้าเว็บ
         img_urls = []
         for img in soup.find_all('img'):
             src = img.get('src', '')
@@ -93,7 +74,6 @@ def process_station_check_all_today(station_name, station_label):
             print(f"[{station_name}] ไม่พบภาพเรดาร์ในหน้าเว็บ")
             return
 
-        # คำนวณวันที่ปัจจุบันของไทย (UTC+7)
         now_thai = datetime.datetime.utcnow() + datetime.timedelta(hours=7)
         today_year = now_thai.strftime("%Y")
         today_month = now_thai.strftime("%m")
@@ -102,27 +82,19 @@ def process_station_check_all_today(station_name, station_label):
         download_count = 0
         skip_count = 0
 
-        # 2. วนลูปเช็คภาพทั้งหมด
         for img_url in img_urls:
             filename = os.path.basename(img_url.split('?')[0])
-            
-            # แปลงเวลาในชื่อไฟล์จาก UTC เป็นเวลาไทย
             thai_year, thai_month, thai_day = parse_filename_to_thai_date(filename)
 
-            # เช็คว่าหลังจากแปลงเป็นเวลาไทยแล้ว ภาพนั้นตรงกับ "วันนี้ของไทย" หรือไม่
             if thai_year == today_year and thai_month == today_month and thai_day == today_day:
-                
-                # จัดเก็บในโฟลเดอร์ตามวันที่เวลาไทย
                 save_dir = os.path.join(BASE_SAVE_DIR, station_name, thai_year, thai_month, thai_day)
                 os.makedirs(save_dir, exist_ok=True)
                 filepath = os.path.join(save_dir, filename)
 
-                # เช็คว่ามีไฟล์นี้อยู่ในโฟลเดอร์แล้วหรือยัง
                 if os.path.exists(filepath):
                     skip_count += 1
                     continue
 
-                # ดาวน์โหลดและใส่โลโก้
                 img_res = requests.get(img_url, headers=headers, timeout=15)
                 if img_res.status_code == 200 and len(img_res.content) > 3000:
                     with open(filepath, 'wb') as f:
