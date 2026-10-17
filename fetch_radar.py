@@ -41,23 +41,33 @@ def parse_filename_to_thai_date(filename):
     now_thai = datetime.datetime.utcnow() + datetime.timedelta(hours=7)
     return now_thai.strftime("%Y"), now_thai.strftime("%m"), now_thai.strftime("%d")
 
-def apply_logo_only(image_path):
-    """ประทับภาพโลโก้ไว้ที่มุมซ้ายบน"""
+def apply_logo_only(image_path, target_width=800):
+    """ย่อขนาดภาพเพื่อประหยัดพื้นที่ + ประทับภาพโลโก้ไว้ที่มุมซ้ายบน"""
     try:
-        if os.path.exists(LOGO_PATH):
-            with Image.open(image_path).convert("RGBA") as base_img:
+        with Image.open(image_path).convert("RGBA") as base_img:
+            
+            # 1. ย่อขนาดภาพเรดาร์ (Resize) รักษาอัตราส่วนเดิม
+            if base_img.width > target_width:
+                aspect_ratio = base_img.height / base_img.width
+                target_height = int(target_width * aspect_ratio)
+                base_img = base_img.resize((target_width, target_height), Image.Resampling.LANCZOS)
+
+            # 2. แปะภาพโลโก้ที่มุมซ้ายบน (ถ้ามีไฟล์ LOGO_PATH)
+            if os.path.exists(LOGO_PATH):
                 with Image.open(LOGO_PATH).convert("RGBA") as logo:
-                    logo_width = 80
+                    logo_width = 60 # ปรับขนาดโลโก้ให้พอดีกับภาพที่ย่อแล้ว
                     aspect_ratio = logo.height / logo.width
                     logo_height = int(logo_width * aspect_ratio)
                     logo = logo.resize((logo_width, logo_height), Image.Resampling.LANCZOS)
                     
-                    base_img.paste(logo, (15, 15), logo)
+                    base_img.paste(logo, (10, 10), logo)
 
-                base_img.convert("RGB").save(image_path)
+            # 3. บันทึกภาพทับไฟล์เดิมในรูปแบบ RGB พร้อมบีบอัดความจุ
+            base_img.convert("RGB").save(image_path, "PNG", optimize=True)
+            print(f"   [+] ย่อขนาดภาพเหลือความกว้าง {target_width}px เรียบร้อย")
+
     except Exception as e:
-        print(f"   [!] เกิดข้อผิดพลาดในการใส่โลโก้: {e}")
-
+        print(f"   [!] เกิดข้อผิดพลาดในการปรับขนาดภาพ: {e}")
 def process_station_check_all_today(station_name, station_label):
     url = f"{BASE_URL}?station={station_name}"
     print(f"\n--- เริ่มตรวจสอบภาพย้อนหลังประจำวัน สถานี: {station_name} ({station_label}) ---")
