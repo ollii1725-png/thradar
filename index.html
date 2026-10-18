@@ -37,7 +37,7 @@
                 
                 <div>
                     <label class="block text-xs font-medium text-slate-400 mb-1">เลือกสถานีเรดาร์</label>
-                    <select id="stationSelect" onchange="loadRadarData()" class="w-full bg-slate-900 border border-slate-600 text-white rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <select id="stationSelect" onchange="onStationChange()" class="w-full bg-slate-900 border border-slate-600 text-white rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
                         <option value="sattahip">สถานีสัตหีบ (ชลบุรี)</option>
                         <option value="omkoi">สถานีอมก๋อย (เชียงใหม่)</option>
                         <option value="phnom">สถานีพนม (สุราษฎร์ธานี)</option>
@@ -112,36 +112,21 @@
     </main>
 
     <script>
-
         // กำหนดข้อความต่อท้ายไฟล์ (Suffix Pattern) ตามจริงของแต่ละสถานี
         const STATION_PATTERNS = {
             sattahip: "0300dBZ.cappi.png",
             omkoi:    "0200dBZ.cappi.png",
             phnom:    "0300dBZ.cappi.png",
-            takli:    "0400dBZ.cappi.png", // ตาคลีใช้ 0400dBZ
-            phimai:   "0400dBZ.cappi.png"  // พิมายใช้ 0400dBZ
+            takli:    "0400dBZ.cappi.png",
+            phimai:   "0400dBZ.cappi.png"
         };
         
-        // ตั้งค่า Date Picker เป็นวันที่ปัจจุบัน
-        const now = new Date();
-        const year = now.getFullYear();
-        const month = String(now.getMonth() + 1).padStart(2, '0');
-        const day = String(now.getDate()).padStart(2, '0');
-        document.getElementById('datePicker').value = `${year}-${month}-${day}`;
-
         let radarImages = [];
         let currentIndex = 0;
         let isPlaying = false;
         let playInterval = null;
 
-        const DIRECT_STATION_URLS = {
-            sattahip: "https://file.royalrain.go.th/opendata/radar_data/cappi/?station=sattahip",
-            omkoi: "https://file.royalrain.go.th/opendata/radar_data/cappi/?station=omkoi",
-            phnom: "https://file.royalrain.go.th/opendata/radar_data/cappi/?station=phnom",
-            takli: "https://file.royalrain.go.th/opendata/radar_data/cappi/?station=takli",
-            phimai: "https://file.royalrain.go.th/opendata/radar_data/cappi/?station=phimai"
-        };
-
+        // ฟังก์ชันโหลดข้อมูลภาพย้อนหลังสำหรับ Slider และ Grid
         async function loadRadarData() {
             const station = document.getElementById('stationSelect').value;
             const selectedDate = document.getElementById('datePicker').value;
@@ -182,100 +167,61 @@
             renderGridView();
         }
 
-      async function fetchRealtimeLatestImage() {
-    if (isPlaying) togglePlayLoop();
-    const station = document.getElementById('stationSelect').value;
-    const spinner = document.getElementById('loadingSpinner');
-    if (spinner) spinner.style.display = 'flex';
+        // ฟังก์ชันคำนวณและดึงภาพ Real-time ล่าสุดตรงจากชื่อไฟล์
+        async function fetchRealtimeLatestImage() {
+            if (isPlaying) togglePlayLoop();
+            const station = document.getElementById('stationSelect').value;
+            const spinner = document.getElementById('loadingSpinner');
+            if (spinner) spinner.style.display = 'flex';
 
-    // 1. คำนวณเวลา UTC ปัจจุบัน
-    const now = new Date();
-    
-    // ย้อนเวลาเผื่อระบบต้นทางสร้างภาพประมวลผลประมาณ 2-4 นาที
-    now.setMinutes(now.getMinutes() - 3);
+            const suffix = STATION_PATTERNS[station] || "0300dBZ.cappi.png";
 
-    // 2. คำนวณนาทีให้อยู่ในช่วงทวีคูณของ 6 (0, 6, 12, 18, 24, 30, 36, 42, 48, 54)
-    const currentMinutes = now.getUTCMinutes();
-    const roundedMinutes = Math.floor(currentMinutes / 6) * 6;
+            // 1. คำนวณเวลา UTC ปัจจุบัน ย้อนเผื่อระบบต้นทางประมวลผล 3 นาที
+            const now = new Date();
+            now.setMinutes(now.getMinutes() - 3);
 
-    // 3. จัดฟอร์แมต YYYYMMDD และ HHMM (เวลา UTC)
-    const year = now.getUTCFullYear();
-    const month = String(now.getUTCMonth() + 1).padStart(2, '0');
-    const day = String(now.getUTCDate()).padStart(2, '0');
-    const hours = String(now.getUTCHours()).padStart(2, '0');
-    const minutes = String(roundedMinutes).padStart(2, '0');
+            // 2. ปัดนาทีเป็นทวีคูณของ 6
+            const currentMinutes = now.getUTCMinutes();
+            const roundedMinutes = Math.floor(currentMinutes / 6) * 6;
 
-    // 4. ประกอบเป็นชื่อไฟล์ตามรูปแบบตายตัว
-    // รูปแบบ: YYYYMMDDHHMM0300dBZ.cappi.png
-    const filename = `${year}${month}${day}${hours}${minutes}0300dBZ.cappi.png`;
-    const directImageUrl = `https://file.royalrain.go.th/opendata/radar_data/cappi/${station}/${filename}`;
+            // 3. ฟอร์แมต YYYYMMDD และ HHMM
+            const year = now.getUTCFullYear();
+            const month = String(now.getUTCMonth() + 1).padStart(2, '0');
+            const day = String(now.getUTCDate()).padStart(2, '0');
+            const hours = String(now.getUTCHours()).padStart(2, '0');
+            const minutes = String(roundedMinutes).padStart(2, '0');
 
-    // 5. ทดสอบโหลดรูปภาพ (ถ้ามีไฟล์จริงแสดงทันที ถ้าไม่มีให้ถอยไปรอบ 6 นาทีก่อนหน้า)
-    const imgTester = new Image();
-    imgTester.onload = function() {
-        document.getElementById('radarImg').src = directImageUrl;
-        document.getElementById('timeDisplay').innerHTML = `<span class="text-emerald-400 font-bold">[Real-time ตรงจากชื่อไฟล์]</span> ${filename}`;
-        if (spinner) spinner.style.display = 'none';
-    };
-    
-    imgTester.onerror = function() {
-        // หากรอบล่าสุดยังประมวลผลไม่เสร็จ ให้ถอยกลับไปอีก 6 นาที
-        now.setMinutes(now.getMinutes() - 6);
-        const prevMinutes = String(Math.floor(now.getUTCMinutes() / 6) * 6).padStart(2, '0');
-        const prevHours = String(now.getUTCHours()).padStart(2, '0');
-        const prevFilename = `${year}${month}${day}${prevHours}${prevMinutes}0300dBZ.cappi.png`;
-        const prevImageUrl = `https://file.royalrain.go.th/opendata/radar_data/cappi/${station}/${prevFilename}`;
+            const filename = `${year}${month}${day}${hours}${minutes}${suffix}`;
+            const directImageUrl = `https://file.royalrain.go.th/opendata/radar_data/cappi/${station}/${filename}`;
 
-        document.getElementById('radarImg').src = prevImageUrl;
-        document.getElementById('timeDisplay').innerHTML = `<span class="text-emerald-400 font-bold">[Real-time ตรงจากชื่อไฟล์]</span> ${prevFilename}`;
-        if (spinner) spinner.style.display = 'none';
-    };
+            // 4. ทดสอบโหลดภาพ
+            const imgTester = new Image();
+            imgTester.onload = function() {
+                document.getElementById('radarImg').src = directImageUrl;
+                document.getElementById('timeDisplay').innerHTML = `<span class="text-emerald-400 font-bold">[Real-time สดจากชื่อไฟล์]</span> ${filename}`;
+                if (spinner) spinner.style.display = 'none';
+            };
+            
+            imgTester.onerror = function() {
+                // ถ้ารอบล่าสุดยังไม่พร้อม ให้ถอยกลับไปอีก 6 นาที
+                now.setMinutes(now.getMinutes() - 6);
+                const prevMinutes = String(Math.floor(now.getUTCMinutes() / 6) * 6).padStart(2, '0');
+                const prevHours = String(now.getUTCHours()).padStart(2, '0');
+                const prevFilename = `${year}${month}${day}${prevHours}${prevMinutes}${suffix}`;
+                const prevImageUrl = `https://file.royalrain.go.th/opendata/radar_data/cappi/${station}/${prevFilename}`;
 
-    imgTester.src = directImageUrl;
-}
+                document.getElementById('radarImg').src = prevImageUrl;
+                document.getElementById('timeDisplay').innerHTML = `<span class="text-emerald-400 font-bold">[Real-time สดจากชื่อไฟล์]</span> ${prevFilename}`;
+                if (spinner) spinner.style.display = 'none';
+            };
 
-        
-// ฟังก์ชันสำรอง: ดึง HTML แล้วเรียงลำดับไฟล์ตาม timestamp ในชื่อไฟล์จริง
-async function fetchFallbackFromWebPage(station) {
-    try {
-        const targetUrl = `https://file.royalrain.go.th/opendata/radar_data/cappi/?station=${station}&nocache=${Date.now()}`;
-        const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(targetUrl)}`;
-        
-        const res = await fetch(proxyUrl, { cache: 'no-store' });
-        const htmlText = await res.text();
-        
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(htmlText, 'text/html');
-        
-        // แกะ URL ภาพทั้งหมดในหน้าเว็บ
-        const imgs = Array.from(doc.querySelectorAll('img'))
-            .map(img => img.getAttribute('src'))
-            .filter(src => src && (src.includes('dBZ') || src.includes('cappi')) && !src.includes('logo'));
-
-        if (imgs.length > 0) {
-            // เรียงลำดับชื่อไฟล์ตามเวลา timestamp (YYYYMMDDHHMMSS) เพื่อหาภาพเวลาล่าสุดจริงๆ
-            imgs.sort((a, b) => {
-                const matchA = a.match(/\d{12,14}/);
-                const matchB = b.match(/\d{12,14}/);
-                if (matchA && matchB) {
-                    return matchB[0].localeCompare(matchA[0]); // เรียงจากมากไปน้อย (ล่าสุดขึ้นก่อน)
-                }
-                return 0;
-            });
-
-            const latestSrc = imgs[0];
-            const fullUrl = latestSrc.startsWith('http') ? latestSrc : `https://file.royalrain.go.th${latestSrc}`;
-            const filename = latestSrc.split('/').pop().split('?')[0];
-
-            document.getElementById('radarImg').src = fullUrl;
-            document.getElementById('timeDisplay').innerHTML = `<span class="text-emerald-400 font-bold">[Real-time สดจากต้นทาง]</span> ${filename}`;
-        } else {
-            goToLatestImage();
+            imgTester.src = directImageUrl;
         }
-    } catch (e) {
-        goToLatestImage();
-    }
-}
+
+        function onStationChange() {
+            loadRadarData();
+            fetchRealtimeLatestImage();
+        }
 
         function updateSingleDisplay(index) {
             currentIndex = parseInt(index);
@@ -386,7 +332,22 @@ async function fetchFallbackFromWebPage(station) {
 
         document.getElementById('latestBtn').onclick = fetchRealtimeLatestImage;
 
-        loadRadarData();
+        // เริ่มต้นการทำงานเมื่อเปิดหน้าเว็บ
+        document.addEventListener('DOMContentLoaded', async () => {
+            // 1. ตั้งค่าดีฟอลต์เลือกสถานีสัตหีบ
+            document.getElementById('stationSelect').value = 'sattahip';
+
+            // 2. ตั้งค่า Date Picker เป็นวันปัจจุบัน
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const day = String(now.getDate()).padStart(2, '0');
+            document.getElementById('datePicker').value = `${year}-${month}-${day}`;
+
+            // 3. โหลดข้อมูลประจำวัน และดึงภาพ Real-time ล่าสุดแสดงทันที
+            await loadRadarData();
+            fetchRealtimeLatestImage();
+        });
     </script>
 </body>
 </html>
