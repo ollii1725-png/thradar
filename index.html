@@ -179,41 +179,85 @@
     if (spinner) spinner.style.display = 'flex';
 
     try {
-        // 1. ส่ง Request ไปอ่านหน้าเว็บกรมฝนหลวงฯ ตรงๆ ผ่าน CORS Proxy แบบทะลวง Cache
+        // 1. เรียก API ตรงของกรมฝนหลวงฯ ผ่าน CORS Proxy เพื่อขอรายการไฟล์ภาพล่าสุด
+        const apiUrl = `https://file.royalrain.go.th/opendata/radar_data/cappi/api.php?station=${station}&nocache=${Date.now()}`;
+        const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(apiUrl)}`;
+        
+        const res = await fetch(proxyUrl, { cache: 'no-store' });
+        const data = await res.json();
+
+        // 2. ตรวจสอบว่า API คืนค่าอาร์เรย์รูปภาพมาหรือไม่
+        if (Array.isArray(data) && data.length > 0) {
+            // กรองเอาเฉพาะไฟล์ภาพเรดาร์ (.png)
+            const validImages = data.filter(item => {
+                const src = item.src || item.url || item;
+                return typeof src === 'string' && (src.includes('dBZ') || src.includes('cappi')) && !src.includes('logo');
+            });
+
+            if (validImages.length > 0) {
+                // เลือกรายการแรกสุดหรือสุดท้าย (เช็คตามลักษณะชื่อไฟล์ที่มี timestamp ล่าสุด)
+                const firstItem = validImages[0];
+                const rawSrc = typeof firstItem === 'string' ? firstItem : (firstItem.src || firstItem.url);
+                
+                const fullUrl = rawSrc.startsWith('http') ? rawSrc : `https://file.royalrain.go.th${rawSrc}`;
+                const filename = rawSrc.split('/').pop().split('?')[0];
+
+                document.getElementById('radarImg').src = fullUrl;
+                document.getElementById('timeDisplay').innerHTML = `<span class="text-emerald-400 font-bold">[Real-time API สด]</span> ${filename}`;
+            } else {
+                goToLatestImage();
+            }
+        } else {
+            // หาก API ไม่ตอบกลับรูปแบบ JSON ให้ถอยไปใช้การเรียงลำดับชื่อไฟล์จากการดึงหน้าเว็บ
+            await fetchFallbackFromWebPage(station);
+        }
+    } catch (e) {
+        console.warn("Direct API fetch failed, switching to webpage fallback:", e);
+        await fetchFallbackFromWebPage(station);
+    } finally {
+        if (spinner) spinner.style.display = 'none';
+    }
+}
+
+// ฟังก์ชันสำรอง: ดึง HTML แล้วเรียงลำดับไฟล์ตาม timestamp ในชื่อไฟล์จริง
+async function fetchFallbackFromWebPage(station) {
+    try {
         const targetUrl = `https://file.royalrain.go.th/opendata/radar_data/cappi/?station=${station}&nocache=${Date.now()}`;
         const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(targetUrl)}`;
         
         const res = await fetch(proxyUrl, { cache: 'no-store' });
         const htmlText = await res.text();
         
-        // 2. แปลง HTML เป็น DOM
         const parser = new DOMParser();
         const doc = parser.parseFromString(htmlText, 'text/html');
         
-        // 3. เจาะจงอ่านจาก <div class="carousel-item active"> หรือ carousel-item ตัวแรกสุด
-        let firstItem = doc.querySelector('.carousel-item.active') || doc.querySelector('.carousel-item');
-        
-        if (firstItem) {
-            const imgTag = firstItem.querySelector('img');
-            if (imgTag && imgTag.getAttribute('src')) {
-                const src = imgTag.getAttribute('src');
-                const fullUrl = src.startsWith('http') ? src : `https://file.royalrain.go.th${src}`;
-                const filename = src.split('/').pop().split('?')[0];
+        // แกะ URL ภาพทั้งหมดในหน้าเว็บ
+        const imgs = Array.from(doc.querySelectorAll('img'))
+            .map(img => img.getAttribute('src'))
+            .filter(src => src && (src.includes('dBZ') || src.includes('cappi')) && !src.includes('logo'));
 
-                // แสดงภาพล่าสุดจากต้นทางทันที
-                document.getElementById('radarImg').src = fullUrl;
-                document.getElementById('timeDisplay').innerHTML = `<span class="text-emerald-400 font-bold">[Real-time สดจากต้นทาง]</span> ${filename}`;
-            } else {
-                goToLatestImage();
-            }
+        if (imgs.length > 0) {
+            // เรียงลำดับชื่อไฟล์ตามเวลา timestamp (YYYYMMDDHHMMSS) เพื่อหาภาพเวลาล่าสุดจริงๆ
+            imgs.sort((a, b) => {
+                const matchA = a.match(/\d{12,14}/);
+                const matchB = b.match(/\d{12,14}/);
+                if (matchA && matchB) {
+                    return matchB[0].localeCompare(matchA[0]); // เรียงจากมากไปน้อย (ล่าสุดขึ้นก่อน)
+                }
+                return 0;
+            });
+
+            const latestSrc = imgs[0];
+            const fullUrl = latestSrc.startsWith('http') ? latestSrc : `https://file.royalrain.go.th${latestSrc}`;
+            const filename = latestSrc.split('/').pop().split('?')[0];
+
+            document.getElementById('radarImg').src = fullUrl;
+            document.getElementById('timeDisplay').innerHTML = `<span class="text-emerald-400 font-bold">[Real-time สดจากต้นทาง]</span> ${filename}`;
         } else {
             goToLatestImage();
         }
     } catch (e) {
-        console.error("Direct Real-time fetch failed:", e);
-        goToLatestImage(); // ถ้าเว็บต้นทางล่ม ให้ถอยไปแสดงภาพล่าสุดจาก Data Repo แทน
-    } finally {
-        if (spinner) spinner.style.display = 'none';
+        goToLatestImage();
     }
 }
 
