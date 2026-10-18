@@ -1,5 +1,6 @@
 import os
 import re
+import json
 import datetime
 import requests
 from bs4 import BeautifulSoup
@@ -71,7 +72,6 @@ def cleanup_old_images_24h():
                     except Exception as e:
                         print(f"   [!] ไม่สามารถลบไฟล์ {file}: {e}")
 
-    # ลบโฟลเดอร์ว่างที่ไม่มีไฟล์เหลืออยู่
     for root, dirs, files in os.walk(BASE_SAVE_DIR, topdown=False):
         for d in dirs:
             dir_path = os.path.join(root, d)
@@ -95,6 +95,32 @@ def process_station_check_all_today(station_name, station_label):
 
         soup = BeautifulSoup(response.text, 'html.parser')
         
+        # 1. ดึงภาพลำดับแรกสุดจาก div.carousel-item.active
+        first_item = soup.find('div', class_=re.compile(r'carousel-item.*active'))
+        if not first_item:
+            first_item = soup.find('div', class_='carousel-item')
+            
+        latest_info = {}
+        if first_item:
+            img_tag = first_item.find('img')
+            if img_tag and img_tag.get('src'):
+                src = img_tag.get('src')
+                full_url = src if src.startswith('http') else f"https://file.royalrain.go.th{src}"
+                filename = os.path.basename(full_url.split('?')[0])
+                file_dt = parse_filename_to_datetime(filename)
+                
+                if file_dt:
+                    latest_info = {
+                        "station": station_name,
+                        "filename": filename,
+                        "url": full_url,
+                        "year": file_dt.strftime("%Y"),
+                        "month": file_dt.strftime("%m"),
+                        "day": file_dt.strftime("%d"),
+                        "updated_at": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                    }
+
+        # 2. แกะ URL ภาพทั้งหมดในหน้าเว็บ
         img_urls = []
         for img in soup.find_all('img'):
             src = img.get('src', '')
@@ -139,6 +165,15 @@ def process_station_check_all_today(station_name, station_label):
                     download_count += 1
                     print(f"   [+] โหลดภาพใหม่: {filename}")
 
+        # 3. บันทึกไฟล์ latest.json ไว้ในโฟลเดอร์สถานี
+        if latest_info:
+            station_dir = os.path.join(BASE_SAVE_DIR, station_name)
+            os.makedirs(station_dir, exist_ok=True)
+            json_path = os.path.join(station_dir, "latest.json")
+            with open(json_path, "w", encoding="utf-8") as f:
+                json.dump(latest_info, f, ensure_ascii=False, indent=2)
+            print(f"   [*] บันทึกข้อมูลภาพล่าสุดลง latest.json เรียบร้อย: {latest_info['filename']}")
+
         print(f"[{station_name}] สรุป: โหลดเพิ่ม {download_count} ภาพ | มีอยู่แล้ว {skip_count} ภาพ\n")
 
     except Exception as e:
@@ -146,11 +181,7 @@ def process_station_check_all_today(station_name, station_label):
 
 def main():
     os.makedirs(BASE_SAVE_DIR, exist_ok=True)
-    
-    # 1. ลบไฟล์ภาพเก่าเกิน 24 ชั่วโมงออกก่อน
     cleanup_old_images_24h()
-
-    # 2. ดาวน์โหลดภาพใหม่เฉพาะช่วง 24 ชั่วโมงล่าสุด
     for station_name, label in STATIONS.items():
         process_station_check_all_today(station_name, label)
 
