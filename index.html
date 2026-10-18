@@ -172,42 +172,46 @@
             renderGridView();
         }
 
-        async function fetchRealtimeLatestImage() {
+       async function fetchRealtimeLatestImage() {
     if (isPlaying) togglePlayLoop();
     const station = document.getElementById('stationSelect').value;
     const spinner = document.getElementById('loadingSpinner');
     if (spinner) spinner.style.display = 'flex';
 
     try {
-        // เพิ่ม &timestamp เพื่อป้องกัน CORS Proxy (AllOrigins) ส่งข้อมูล HTML เก่าติดแคชกลับมา
-        const targetUrl = `${DIRECT_STATION_URLS[station]}&_t=${Date.now()}`;
-        const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(targetUrl)}&_t=${Date.now()}`;
+        // 1. ส่ง Request ไปอ่านหน้าเว็บกรมฝนหลวงฯ ตรงๆ ผ่าน CORS Proxy แบบทะลวง Cache
+        const targetUrl = `https://file.royalrain.go.th/opendata/radar_data/cappi/?station=${station}&nocache=${Date.now()}`;
+        const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(targetUrl)}`;
         
-        const res = await fetch(proxyUrl);
-        const data = await res.json();
+        const res = await fetch(proxyUrl, { cache: 'no-store' });
+        const htmlText = await res.text();
         
+        // 2. แปลง HTML เป็น DOM
         const parser = new DOMParser();
-        const doc = parser.parseFromString(data.contents, 'text/html');
+        const doc = parser.parseFromString(htmlText, 'text/html');
         
-        // แกะ URL ภาพทั้งหมดเรียงตามลำดับที่ปรากฏบนหน้าเว็บ
-        const imgs = Array.from(doc.querySelectorAll('img'))
-            .map(img => img.getAttribute('src'))
-            .filter(src => src && (src.includes('dBZ') || src.includes('cappi')) && !src.includes('logo'));
+        // 3. เจาะจงอ่านจาก <div class="carousel-item active"> หรือ carousel-item ตัวแรกสุด
+        let firstItem = doc.querySelector('.carousel-item.active') || doc.querySelector('.carousel-item');
+        
+        if (firstItem) {
+            const imgTag = firstItem.querySelector('img');
+            if (imgTag && imgTag.getAttribute('src')) {
+                const src = imgTag.getAttribute('src');
+                const fullUrl = src.startsWith('http') ? src : `https://file.royalrain.go.th${src}`;
+                const filename = src.split('/').pop().split('?')[0];
 
-        if (imgs.length > 0) {
-            // เลือก imgs[0] ซึ่งเป็นภาพเวลาปัจจุบันล่าสุดใน Carousel ของกรมฝนหลวงฯ
-            const latestSrc = imgs[0]; 
-            const fullUrl = latestSrc.startsWith('http') ? latestSrc : `https://file.royalrain.go.th${latestSrc}`;
-            const filename = latestSrc.split('/').pop().split('?')[0];
-
-            document.getElementById('radarImg').src = fullUrl;
-            document.getElementById('timeDisplay').innerHTML = `<span class="text-emerald-400 font-bold">[Real-time ล่าสุด]</span> ${filename}`;
+                // แสดงภาพล่าสุดจากต้นทางทันที
+                document.getElementById('radarImg').src = fullUrl;
+                document.getElementById('timeDisplay').innerHTML = `<span class="text-emerald-400 font-bold">[Real-time สดจากต้นทาง]</span> ${filename}`;
+            } else {
+                goToLatestImage();
+            }
         } else {
             goToLatestImage();
         }
     } catch (e) {
         console.error("Direct Real-time fetch failed:", e);
-        goToLatestImage(); // ถ้าระบบ Real-time ขัดข้อง ให้ถอยไปใช้ภาพล่าสุดจาก Data Repo
+        goToLatestImage(); // ถ้าเว็บต้นทางล่ม ให้ถอยไปแสดงภาพล่าสุดจาก Data Repo แทน
     } finally {
         if (spinner) spinner.style.display = 'none';
     }
