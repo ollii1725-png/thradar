@@ -112,6 +112,16 @@
     </main>
 
     <script>
+
+        // กำหนดข้อความต่อท้ายไฟล์ (Suffix Pattern) ตามจริงของแต่ละสถานี
+        const STATION_PATTERNS = {
+            sattahip: "0300dBZ.cappi.png",
+            omkoi:    "0200dBZ.cappi.png",
+            phnom:    "0300dBZ.cappi.png",
+            takli:    "0400dBZ.cappi.png", // ตาคลีใช้ 0400dBZ
+            phimai:   "0400dBZ.cappi.png"  // พิมายใช้ 0400dBZ
+        };
+        
         // ตั้งค่า Date Picker เป็นวันที่ปัจจุบัน
         const now = new Date();
         const year = now.getFullYear();
