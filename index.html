@@ -173,38 +173,45 @@
         }
 
         async function fetchRealtimeLatestImage() {
-            if (isPlaying) togglePlayLoop();
-            const station = document.getElementById('stationSelect').value;
-            const spinner = document.getElementById('loadingSpinner');
-            if (spinner) spinner.style.display = 'flex';
+    if (isPlaying) togglePlayLoop();
+    const station = document.getElementById('stationSelect').value;
+    const spinner = document.getElementById('loadingSpinner');
+    if (spinner) spinner.style.display = 'flex';
 
-            try {
-                const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(DIRECT_STATION_URLS[station])}`;
-                const res = await fetch(proxyUrl);
-                const data = await res.json();
-                
-                const parser = new DOMParser();
-                const doc = parser.parseFromString(data.contents, 'text/html');
-                const imgs = Array.from(doc.querySelectorAll('img'))
-                    .map(img => img.getAttribute('src'))
-                    .filter(src => src && (src.includes('dBZ') || src.includes('cappi')) && !src.includes('logo'));
+    try {
+        // เพิ่ม &timestamp เพื่อป้องกัน CORS Proxy (AllOrigins) ส่งข้อมูล HTML เก่าติดแคชกลับมา
+        const targetUrl = `${DIRECT_STATION_URLS[station]}&_t=${Date.now()}`;
+        const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(targetUrl)}&_t=${Date.now()}`;
+        
+        const res = await fetch(proxyUrl);
+        const data = await res.json();
+        
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(data.contents, 'text/html');
+        
+        // แกะ URL ภาพทั้งหมดเรียงตามลำดับที่ปรากฏบนหน้าเว็บ
+        const imgs = Array.from(doc.querySelectorAll('img'))
+            .map(img => img.getAttribute('src'))
+            .filter(src => src && (src.includes('dBZ') || src.includes('cappi')) && !src.includes('logo'));
 
-                if (imgs.length > 0) {
-                    const latestSrc = imgs[imgs.length - 1];
-                    const fullUrl = latestSrc.startsWith('http') ? latestSrc : `https://file.royalrain.go.th${latestSrc}`;
-                    const filename = latestSrc.split('/').pop().split('?')[0];
+        if (imgs.length > 0) {
+            // เลือก imgs[0] ซึ่งเป็นภาพเวลาปัจจุบันล่าสุดใน Carousel ของกรมฝนหลวงฯ
+            const latestSrc = imgs[0]; 
+            const fullUrl = latestSrc.startsWith('http') ? latestSrc : `https://file.royalrain.go.th${latestSrc}`;
+            const filename = latestSrc.split('/').pop().split('?')[0];
 
-                    document.getElementById('radarImg').src = fullUrl;
-                    document.getElementById('timeDisplay').innerHTML = `<span class="text-emerald-400 font-bold">[Real-time ล่าสุด]</span> ${filename}`;
-                } else {
-                    goToLatestImage();
-                }
-            } catch (e) {
-                goToLatestImage();
-            } finally {
-                if (spinner) spinner.style.display = 'none';
-            }
+            document.getElementById('radarImg').src = fullUrl;
+            document.getElementById('timeDisplay').innerHTML = `<span class="text-emerald-400 font-bold">[Real-time ล่าสุด]</span> ${filename}`;
+        } else {
+            goToLatestImage();
         }
+    } catch (e) {
+        console.error("Direct Real-time fetch failed:", e);
+        goToLatestImage(); // ถ้าระบบ Real-time ขัดข้อง ให้ถอยไปใช้ภาพล่าสุดจาก Data Repo
+    } finally {
+        if (spinner) spinner.style.display = 'none';
+    }
+}
 
         function updateSingleDisplay(index) {
             currentIndex = parseInt(index);
