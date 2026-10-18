@@ -172,59 +172,59 @@
             renderGridView();
         }
 
-       async function fetchRealtimeLatestImage() {
+      async function fetchRealtimeLatestImage() {
     if (isPlaying) togglePlayLoop();
     const station = document.getElementById('stationSelect').value;
     const spinner = document.getElementById('loadingSpinner');
     if (spinner) spinner.style.display = 'flex';
 
-    try {
-        // 1. ดึง HTML จากหน้าเว็บต้นทางโดยใส่ Parameter ป้องกัน Cache
-        const targetUrl = `https://file.royalrain.go.th/opendata/radar_data/cappi/?station=${station}&_t=${Date.now()}`;
-        const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(targetUrl)}`;
-        
-        const res = await fetch(proxyUrl, { cache: 'no-store' });
-        const htmlText = await res.text();
-        
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(htmlText, 'text/html');
-        
-        // 2. ดึงพาธรูปภาพทั้งหมดจากแท็ก <a> และ <img> ที่มีคำว่า dBZ หรือ cappi
-        const linksAndImgs = Array.from(doc.querySelectorAll('a, img'))
-            .map(el => el.getAttribute('href') || el.getAttribute('src'))
-            .filter(src => src && (src.includes('dBZ') || src.includes('cappi')) && !src.includes('logo'));
+    // 1. คำนวณเวลา UTC ปัจจุบัน
+    const now = new Date();
+    
+    // ย้อนเวลาเผื่อระบบต้นทางสร้างภาพประมวลผลประมาณ 2-4 นาที
+    now.setMinutes(now.getMinutes() - 3);
 
-        // 3. กรองชื่อไฟล์ซ้ำออก
-        const uniqueSrcs = [...new Set(linksAndImgs)];
+    // 2. คำนวณนาทีให้อยู่ในช่วงทวีคูณของ 6 (0, 6, 12, 18, 24, 30, 36, 42, 48, 54)
+    const currentMinutes = now.getUTCMinutes();
+    const roundedMinutes = Math.floor(currentMinutes / 6) * 6;
 
-        if (uniqueSrcs.length > 0) {
-            // 4. สกัดตัวเลข Timestamp (เช่น 20261018081803) มาเรียงลำดับจากมากไปน้อย (ล่าสุดขึ้นก่อน)
-            uniqueSrcs.sort((a, b) => {
-                const matchA = a.match(/\d{12,14}/);
-                const matchB = b.match(/\d{12,14}/);
-                if (matchA && matchB) {
-                    return matchB[0].localeCompare(matchA[0]); // เรียงจากตัวเลขมากไปน้อย
-                }
-                return 0;
-            });
+    // 3. จัดฟอร์แมต YYYYMMDD และ HHMM (เวลา UTC)
+    const year = now.getUTCFullYear();
+    const month = String(now.getUTCMonth() + 1).padStart(2, '0');
+    const day = String(now.getUTCDate()).padStart(2, '0');
+    const hours = String(now.getUTCHours()).padStart(2, '0');
+    const minutes = String(roundedMinutes).padStart(2, '0');
 
-            // ได้ภาพที่มี Timestamp ล่าสุดแน่นอน 100%
-            const latestSrc = uniqueSrcs[0];
-            const fullUrl = latestSrc.startsWith('http') ? latestSrc : `https://file.royalrain.go.th${latestSrc}`;
-            const filename = latestSrc.split('/').pop().split('?')[0];
+    // 4. ประกอบเป็นชื่อไฟล์ตามรูปแบบตายตัว
+    // รูปแบบ: YYYYMMDDHHMM0300dBZ.cappi.png
+    const filename = `${year}${month}${day}${hours}${minutes}0300dBZ.cappi.png`;
+    const directImageUrl = `https://file.royalrain.go.th/opendata/radar_data/cappi/${station}/${filename}`;
 
-            document.getElementById('radarImg').src = fullUrl;
-            document.getElementById('timeDisplay').innerHTML = `<span class="text-emerald-400 font-bold">[Real-time ล่าสุด]</span> ${filename}`;
-        } else {
-            goToLatestImage();
-        }
-    } catch (e) {
-        console.error("Direct Real-time fetch failed:", e);
-        goToLatestImage(); // ถ้าระบบ Real-time ขัดข้อง ให้ถอยไปแสดงภาพล่าสุดจาก Data Repo
-    } finally {
+    // 5. ทดสอบโหลดรูปภาพ (ถ้ามีไฟล์จริงแสดงทันที ถ้าไม่มีให้ถอยไปรอบ 6 นาทีก่อนหน้า)
+    const imgTester = new Image();
+    imgTester.onload = function() {
+        document.getElementById('radarImg').src = directImageUrl;
+        document.getElementById('timeDisplay').innerHTML = `<span class="text-emerald-400 font-bold">[Real-time ตรงจากชื่อไฟล์]</span> ${filename}`;
         if (spinner) spinner.style.display = 'none';
-    }
+    };
+    
+    imgTester.onerror = function() {
+        // หากรอบล่าสุดยังประมวลผลไม่เสร็จ ให้ถอยกลับไปอีก 6 นาที
+        now.setMinutes(now.getMinutes() - 6);
+        const prevMinutes = String(Math.floor(now.getUTCMinutes() / 6) * 6).padStart(2, '0');
+        const prevHours = String(now.getUTCHours()).padStart(2, '0');
+        const prevFilename = `${year}${month}${day}${prevHours}${prevMinutes}0300dBZ.cappi.png`;
+        const prevImageUrl = `https://file.royalrain.go.th/opendata/radar_data/cappi/${station}/${prevFilename}`;
+
+        document.getElementById('radarImg').src = prevImageUrl;
+        document.getElementById('timeDisplay').innerHTML = `<span class="text-emerald-400 font-bold">[Real-time ตรงจากชื่อไฟล์]</span> ${prevFilename}`;
+        if (spinner) spinner.style.display = 'none';
+    };
+
+    imgTester.src = directImageUrl;
 }
+
+        
 // ฟังก์ชันสำรอง: ดึง HTML แล้วเรียงลำดับไฟล์ตาม timestamp ในชื่อไฟล์จริง
 async function fetchFallbackFromWebPage(station) {
     try {
