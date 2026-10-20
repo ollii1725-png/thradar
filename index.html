@@ -15,20 +15,28 @@
 
     <!-- Top & Main Section Container -->
     <div>
-        <!-- Header Bar ขนาดใหญ่และอ่านง่ายเท่าเว็บน้ำในเขื่อน -->
-        <header class="bg-gradient-to-r from-blue-700 via-blue-600 to-cyan-600 text-white shadow-md sticky top-0 z-50">
-            <div class="max-w-7xl mx-auto px-4 py-3.5 md:py-4 flex flex-wrap items-center justify-between gap-4">
+        <!-- Header Bar สี ความสูง และขนาดฟอนต์เดียวกับเว็บ damsthailand -->
+        <header class="bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-md sticky top-0 z-50">
+            <div class="max-w-7xl mx-auto px-4 py-3 md:py-4 flex flex-wrap items-center justify-between gap-4">
                 
                 <!-- Logo & Title -->
-                <div class="flex items-center gap-4">
-                    <div class="w-12 h-12 bg-white/20 backdrop-blur-md rounded-2xl flex items-center justify-center shadow-inner border border-white/30 flex-shrink-0">
-                        <i class="fa-solid fa-wifi text-white text-2xl rotate-45"></i>
+                <div class="flex items-center gap-3.5">
+                    <!-- โลโก้รูปจานเรดาร์แบบ SVG คล้ายภาพตัวอย่าง -->
+                    <div class="w-12 h-12 bg-white/20 backdrop-blur-md rounded-2xl flex items-center justify-center shadow-inner border border-white/30 flex-shrink-0 p-2">
+                        <svg class="w-full h-full text-white fill-current" viewBox="0 0 24 24">
+                            <!-- จานเรดาร์และฐาน -->
+                            <path d="M12.5 12.872a.75.75 0 0 1 .15.015l5.25 1.5a.75.75 0 0 1 .43.985l-.5 1.25a6.5 6.5 0 0 1-8.243 3.664.75.75 0 0 1-.437-.98l.5-1.25a.75.75 0 0 1 .982-.435l1.618.462a.75.75 0 0 0 .25-.013l-3.32-6.64a.75.75 0 0 1 .336-.998l2.984-1.492a.75.75 0 0 1 .998.336l3.018 6.036ZM5 20.25a.75.75 0 0 1 .75-.75h12.5a.75.75 0 0 1 0 1.5H5.75A.75.75 0 0 1 5 20.25ZM9.1 17.5l-1.268 2.25h8.336l-1.268-2.25H9.1Z"/>
+                            <!-- คลื่นสัญญาณ 1 -->
+                            <path d="M14.657 5.343a.75.75 0 0 1 1.06 0 7.5 7.5 0 0 1 0 10.607.75.75 0 0 1-1.06-1.061 6 6 0 0 0 0-8.485.75.75 0 0 1 0-1.061Z"/>
+                            <!-- คลื่นสัญญาณ 2 -->
+                            <path d="M16.778 3.222a.75.75 0 0 1 1.061 0 10.5 10.5 0 0 1 0 14.849.75.75 0 0 1-1.061-1.06 9 9 0 0 0 0-12.728.75.75 0 0 1 0-1.061Z"/>
+                        </svg>
                     </div>
                     <div>
-                        <h1 class="text-2xl md:text-3xl font-bold tracking-wide text-white leading-snug">
+                        <h1 class="text-xl md:text-2xl font-bold tracking-tight text-white leading-tight">
                             ภาพเรดาร์ทั่วประเทศ
                         </h1>
-                        <p class="text-xs md:text-sm text-blue-100 font-light opacity-90 tracking-wide mt-0.5">
+                        <p class="text-xs text-blue-100 font-light opacity-90 tracking-wide mt-0.5">
                             Thailand Royal Rainmaking Radar Tracker by Sumet Prapasathit
                         </p>
                     </div>
@@ -37,10 +45,10 @@
                 <!-- View Mode Switcher -->
                 <div class="flex items-center gap-2">
                     <div class="flex items-center gap-1.5 bg-white/10 p-1.5 rounded-xl border border-white/20">
-                        <button id="viewSingleBtn" onclick="switchView('single')" class="px-4 py-2 bg-white text-blue-700 text-xs md:text-sm font-semibold rounded-lg shadow-sm transition">
+                        <button id="viewSingleBtn" onclick="switchView('single')" class="px-3.5 py-1.5 bg-white text-blue-700 text-xs md:text-sm font-semibold rounded-lg shadow-sm transition">
                             <i class="fa-solid fa-image mr-1.5"></i> โหมดภาพเดี่ยว
                         </button>
-                        <button id="viewGridBtn" onclick="switchView('grid')" class="px-4 py-2 text-white hover:bg-white/10 text-xs md:text-sm font-medium rounded-lg transition">
+                        <button id="viewGridBtn" onclick="switchView('grid')" class="px-3.5 py-1.5 text-white hover:bg-white/10 text-xs md:text-sm font-medium rounded-lg transition">
                             <i class="fa-solid fa-border-all mr-1.5"></i> โหมดตาราง
                         </button>
                     </div>
@@ -115,8 +123,8 @@
             <!-- Single View Container -->
             <div id="singleViewContainer">
                 
-                <!-- Radar Display Box ปรับลดขนาดภาพเล็กน้อยให้อยู่ในกรอบอย่างลงตัว -->
-                <div class="bg-white border border-slate-200/80 rounded-2xl p-2 relative flex items-center justify-center min-h-[340px] max-h-[380px] md:max-h-[420px] shadow-sm overflow-hidden">
+                <!-- Radar Display Box ขยายภาพให้ใหญ่ขึ้น (680px - 800px) -->
+                <div class="bg-white border border-slate-200/80 rounded-2xl p-2.5 relative flex items-center justify-center min-h-[500px] max-h-[680px] md:max-h-[800px] shadow-sm overflow-hidden">
                     
                     <!-- Loading Spinner -->
                     <div id="loadingSpinner" class="absolute inset-0 bg-white/90 z-10 flex flex-col items-center justify-center gap-2 backdrop-blur-sm">
@@ -124,7 +132,7 @@
                         <span class="text-xs font-medium text-slate-600 tracking-wide">กำลังประมวลผลภาพเรดาร์...</span>
                     </div>
 
-                    <img id="radarImg" src="" alt="Radar Display" class="w-full h-auto max-h-[370px] md:max-h-[410px] object-contain rounded-lg">
+                    <img id="radarImg" src="" alt="Radar Display" class="w-full h-auto max-h-[670px] md:max-h-[790px] object-contain rounded-lg">
                 </div>
 
             </div>
@@ -139,7 +147,7 @@
         </main>
     </div>
 
-    <!-- Footer Bar โทนสีเข้มตามต้องการ -->
+    <!-- Footer Bar โทนสีเข้ม -->
     <footer class="bg-slate-800 border-t border-slate-700 text-slate-300 py-3.5 text-xs">
         <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2.5 tracking-wide">
             <div>
@@ -352,14 +360,14 @@
             if (mode === 'single') {
                 singleBox.classList.remove('hidden');
                 gridBox.classList.add('hidden');
-                singleBtn.className = "px-4 py-2 bg-white text-blue-700 text-xs md:text-sm font-semibold rounded-lg shadow-sm transition";
-                gridBtn.className = "px-4 py-2 text-white hover:bg-white/10 text-xs md:text-sm font-medium rounded-lg transition";
+                singleBtn.className = "px-3.5 py-1.5 bg-white text-blue-700 text-xs md:text-sm font-semibold rounded-lg shadow-sm transition";
+                gridBtn.className = "px-3.5 py-1.5 text-white hover:bg-white/10 text-xs md:text-sm font-medium rounded-lg transition";
             } else {
                 if (isPlaying) togglePlayLoop();
                 singleBox.classList.add('hidden');
                 gridBox.classList.remove('hidden');
-                gridBtn.className = "px-4 py-2 bg-white text-blue-700 text-xs md:text-sm font-semibold rounded-lg shadow-sm transition";
-                singleBtn.className = "px-4 py-2 text-white hover:bg-white/10 text-xs md:text-sm font-medium rounded-lg transition";
+                gridBtn.className = "px-3.5 py-1.5 bg-white text-blue-700 text-xs md:text-sm font-semibold rounded-lg shadow-sm transition";
+                singleBtn.className = "px-3.5 py-1.5 text-white hover:bg-white/10 text-xs md:text-sm font-medium rounded-lg transition";
             }
         }
 
