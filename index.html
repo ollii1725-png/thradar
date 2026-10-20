@@ -6,139 +6,141 @@
     <title>ภาพเรดาร์ทั่วประเทศ</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Sarabun', sans-serif; }
+        body { font-family: 'Prompt', sans-serif; }
     </style>
 </head>
-<body class="bg-slate-100 text-slate-800 min-h-screen">
+<body class="bg-slate-100 text-slate-800 min-h-screen flex flex-col justify-between">
 
-    <!-- Header Bar ปรับความสูงเท่าเว็บน้ำในเขื่อน -->
-    <header class="bg-gradient-to-r from-blue-700 via-blue-600 to-cyan-600 text-white shadow-lg sticky top-0 z-50">
-        <div class="max-w-7xl mx-auto px-4 py-5 flex flex-wrap items-center justify-between gap-4">
-            
-            <!-- Logo & Title -->
-            <div class="flex items-center gap-3.5">
-                <div class="w-12 h-12 bg-white/20 backdrop-blur-md rounded-2xl flex items-center justify-center shadow-inner border border-white/30 flex-shrink-0">
-                    <i class="fa-solid fa-cloud-showers-heavy text-white text-2xl"></i>
-                </div>
-                <div>
-                    <h1 class="text-2xl font-bold tracking-tight text-white leading-tight">
-                        ภาพเรดาร์ทั่วประเทศ
-                    </h1>
-                    <p class="text-xs text-blue-100 font-light opacity-90 mt-0.5">
-                        Thailand Royal Rainmaking Radar Tracker by Sumet Prapasathit
-                    </p>
-                </div>
-            </div>
-
-            <!-- Header View Switcher Actions -->
-            <div class="flex items-center gap-2">
-                <div class="flex items-center gap-1.5 bg-white/10 p-1.5 rounded-xl border border-white/20">
-                    <button id="viewSingleBtn" onclick="switchView('single')" class="px-3.5 py-1.5 bg-white text-blue-700 text-xs font-semibold rounded-lg shadow-sm transition">
-                        <i class="fa-solid fa-circle-play mr-1"></i> โหมดสไลด์/วิดีโอ
-                    </button>
-                    <button id="viewGridBtn" onclick="switchView('grid')" class="px-3.5 py-1.5 text-white hover:bg-white/10 text-xs font-medium rounded-lg transition">
-                        <i class="fa-solid fa-border-all mr-1"></i> โหมดตารางกริด
-                    </button>
-                </div>
-            </div>
-
-        </div>
-    </header>
-
-    <main class="max-w-7xl mx-auto px-4 py-6">
-
-        <!-- Controls Section Card -->
-        <div class="bg-white rounded-2xl p-4 md:p-5 border border-slate-200/80 mb-6 shadow-sm">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
+    <div>
+        <!-- Header Bar บีบความสูงกระชับ + เปลี่ยนไอคอนเป็น Radar -->
+        <header class="bg-gradient-to-r from-blue-700 via-blue-600 to-cyan-600 text-white shadow-md sticky top-0 z-50">
+            <div class="max-w-7xl mx-auto px-4 py-2.5 flex flex-wrap items-center justify-between gap-3">
                 
-                <div>
-                    <label class="block text-xs font-semibold text-slate-500 mb-1.5">
-                        <i class="fa-solid fa-tower-cell text-blue-600 mr-1"></i> เลือกสถานีเรดาร์
-                    </label>
-                    <select id="stationSelect" onchange="onStationChange()" class="w-full bg-slate-50 border border-slate-200 text-slate-800 rounded-xl px-3.5 py-2.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition">
-                        <option value="sattahip">สถานีสัตหีบ (ชลบุรี)</option>
-                        <option value="omkoi">สถานีอมก๋อย (เชียงใหม่)</option>
-                        <option value="phnom">สถานีพนม (สุราษฎร์ธานี)</option>
-                        <option value="takli">สถานีตาคลี (นครสวรรค์)</option>
-                        <option value="phimai">สถานีพิมาย (นครราชสีมา)</option>
-                    </select>
+                <!-- Logo & Title -->
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-white/20 backdrop-blur-md rounded-xl flex items-center justify-center shadow-inner border border-white/30 flex-shrink-0">
+                        <i class="fa-solid fa-radar text-white text-xl"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-xl font-semibold tracking-tight text-white leading-tight">
+                            ภาพเรดาร์ทั่วประเทศ
+                        </h1>
+                        <p class="text-[11px] text-blue-100 font-light opacity-90">
+                            Thailand Royal Rainmaking Radar Tracker by Sumet Prapasathit
+                        </p>
+                    </div>
                 </div>
 
-                <div>
-                    <label class="block text-xs font-semibold text-slate-500 mb-1.5">
-                        <i class="fa-regular fa-calendar-days text-blue-600 mr-1"></i> เลือกวันที่ดูย้อนหลัง
-                    </label>
-                    <input type="date" id="datePicker" onchange="loadRadarData()" class="w-full bg-slate-50 border border-slate-200 text-slate-800 rounded-xl px-3.5 py-2.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition">
-                </div>
-
-                <div class="flex items-end h-full pt-2 md:pt-0">
-                    <button id="latestBtn" class="w-full bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-semibold py-2.5 px-4 rounded-xl text-sm transition flex items-center justify-center gap-2 shadow-sm shadow-blue-200">
-                        <i class="fa-solid fa-bolt text-amber-300"></i> ดูภาพปัจจุบัน (Direct Real-time)
-                    </button>
+                <!-- Header Actions View Switcher -->
+                <div class="flex items-center gap-2">
+                    <div class="flex items-center gap-1 bg-white/10 p-1 rounded-xl border border-white/20">
+                        <button id="viewSingleBtn" onclick="switchView('single')" class="px-3 py-1 bg-white text-blue-700 text-xs font-medium rounded-lg shadow-sm transition">
+                            <i class="fa-solid fa-image mr-1"></i> โหมดภาพเดี่ยว
+                        </button>
+                        <button id="viewGridBtn" onclick="switchView('grid')" class="px-3 py-1 text-white hover:bg-white/10 text-xs font-normal rounded-lg transition">
+                            <i class="fa-solid fa-border-all mr-1"></i> โหมดตาราง
+                        </button>
+                    </div>
                 </div>
 
             </div>
-        </div>
+        </header>
 
-        <!-- Notice Alert -->
-        <div class="bg-blue-50/70 border border-blue-100 rounded-xl p-3 mb-6 flex items-center gap-2.5 text-xs text-blue-800">
-            <i class="fa-solid fa-circle-info text-blue-600 text-sm flex-shrink-0"></i>
-            <span>โหมดภาพปัจจุบันจะคำนวณและดึงไฟล์ตรงจากกรมฝนหลวงฯ ณ วินาทีนั้น ส่วนโหมดย้อนหลังจะดึงคลังภาพสะสม 24 ชม. ล่าสุด</span>
-        </div>
+        <main class="max-w-7xl mx-auto px-4 py-3">
 
-        <!-- Single View Container -->
-        <div id="singleViewContainer" class="space-y-4">
-            
-            <!-- Radar Display Box (ขยายขนาดภาพ และเปลี่ยนพื้นหลังขอบเป็นสีขาว) -->
-            <div class="bg-white border border-slate-200/80 rounded-2xl p-3 relative flex items-center justify-center min-h-[480px] md:min-h-[600px] shadow-sm overflow-hidden">
-                
-                <!-- Loading Spinner -->
-                <div id="loadingSpinner" class="absolute inset-0 bg-white/90 z-10 flex flex-col items-center justify-center gap-2 backdrop-blur-sm">
-                    <i class="fa-solid fa-circle-notch fa-spin text-blue-600 text-3xl"></i>
-                    <span class="text-xs font-semibold text-slate-600">กำลังประมวลผลภาพเรดาร์...</span>
-                </div>
-
-                <img id="radarImg" src="" alt="Radar Display" class="w-full h-auto max-h-[750px] object-contain rounded-xl">
-            </div>
-
-            <!-- Control Bar Card -->
-            <div class="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-sm flex flex-col gap-3">
-                
-                <div class="flex items-center justify-between text-xs text-slate-500 font-mono">
-                    <span id="timeDisplay" class="font-bold text-slate-700 text-sm">กำลังโหลดข้อมูล...</span>
-                    <span id="frameCounter" class="bg-slate-100 px-2.5 py-1 rounded-md text-slate-600 font-semibold">0 / 0</span>
-                </div>
-
-                <input type="range" id="timelineSlider" min="0" max="0" value="0" oninput="onSliderChange(this.value)" class="w-full accent-blue-600 cursor-pointer h-2 bg-slate-100 rounded-lg">
-
-                <div class="flex flex-wrap items-center justify-center gap-3 pt-1">
-                    <button id="prevBtn" onclick="prevImage()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-sm font-semibold transition disabled:opacity-40">
-                        <i class="fa-solid fa-chevron-left mr-1"></i> ย้อนหลัง
-                    </button>
+            <!-- Controls Section Card (บีบ padding ให้กระชับ) -->
+            <div class="bg-white rounded-xl p-3 border border-slate-200/80 mb-2.5 shadow-sm">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-3 items-center">
                     
-                    <button id="playBtn" onclick="togglePlayLoop()" class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-semibold transition flex items-center gap-2 shadow-sm shadow-blue-200">
-                        <i id="playIcon" class="fa-solid fa-play"></i> <span id="playText">เล่นวิดีโอ Loop ย้อนหลัง</span>
-                    </button>
+                    <div>
+                        <label class="block text-[11px] font-medium text-slate-500 mb-1">
+                            <i class="fa-solid fa-tower-cell text-blue-600 mr-1"></i> เลือกสถานีเรดาร์
+                        </label>
+                        <select id="stationSelect" onchange="onStationChange()" class="w-full bg-slate-50 border border-slate-200 text-slate-800 rounded-lg px-3 py-1.5 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition">
+                            <option value="sattahip">สถานีสัตหีบ (ชลบุรี)</option>
+                            <option value="omkoi">สถานีอมก๋อย (เชียงใหม่)</option>
+                            <option value="phnom">สถานีพนม (สุราษฎร์ธานี)</option>
+                            <option value="takli">สถานีตาคลี (นครสวรรค์)</option>
+                            <option value="phimai">สถานีพิมาย (นครราชสีมา)</option>
+                        </select>
+                    </div>
 
-                    <button id="nextBtn" onclick="nextImage()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-sm font-semibold transition disabled:opacity-40">
-                        ถัดไป <i class="fa-solid fa-chevron-right ml-1"></i>
-                    </button>
+                    <div>
+                        <label class="block text-[11px] font-medium text-slate-500 mb-1">
+                            <i class="fa-regular fa-calendar-days text-blue-600 mr-1"></i> เลือกวันที่ดูย้อนหลัง
+                        </label>
+                        <input type="date" id="datePicker" onchange="loadRadarData()" class="w-full bg-slate-50 border border-slate-200 text-slate-800 rounded-lg px-3 py-1.5 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition">
+                    </div>
+
+                    <div class="flex items-end h-full pt-1 md:pt-0">
+                        <button id="latestBtn" class="w-full bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-medium py-1.5 px-3 rounded-lg text-xs transition flex items-center justify-center gap-1.5 shadow-sm shadow-blue-200">
+                            <i class="fa-solid fa-rotate text-amber-300"></i> ดูภาพปัจจุบัน (Refresh)
+                        </button>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Notice Alert ข้อความปรับใหม่ -->
+            <div class="bg-blue-50/80 border border-blue-100 rounded-lg px-3 py-1.5 mb-3 flex items-center gap-2 text-[11px] text-blue-800">
+                <i class="fa-solid fa-circle-info text-blue-600 text-xs flex-shrink-0"></i>
+                <span>วิดีโอ และภาพเรดาร์แบบตาราง อาจยังไม่เป็นปัจจุบัน หากต้องการดูภาพปัจจุบัน ให้กดปุ่ม Refresh เพื่อดูภาพปัจจุบัน</span>
+            </div>
+
+            <!-- Single View Container -->
+            <div id="singleViewContainer" class="space-y-2.5">
+                
+                <!-- Radar Display Box (ปรับความสูงให้อยู่ในกรอบเต็มจอพอดี) -->
+                <div class="bg-white border border-slate-200/80 rounded-xl p-2 relative flex items-center justify-center min-h-[380px] max-h-[calc(100vh-250px)] shadow-sm overflow-hidden">
+                    
+                    <!-- Loading Spinner -->
+                    <div id="loadingSpinner" class="absolute inset-0 bg-white/90 z-10 flex flex-col items-center justify-center gap-2 backdrop-blur-sm">
+                        <i class="fa-solid fa-circle-notch fa-spin text-blue-600 text-2xl"></i>
+                        <span class="text-xs font-medium text-slate-600">กำลังประมวลผลภาพเรดาร์...</span>
+                    </div>
+
+                    <img id="radarImg" src="" alt="Radar Display" class="w-full h-auto max-h-[calc(100vh-270px)] object-contain rounded-lg">
+                </div>
+
+                <!-- Control Bar Card (บีบความสูงให้อยู่ในแถบเดียว) -->
+                <div class="bg-white rounded-xl p-2.5 border border-slate-200/80 shadow-sm flex flex-col gap-2">
+                    
+                    <div class="flex items-center justify-between text-[11px] text-slate-500 font-mono">
+                        <span id="timeDisplay" class="font-semibold text-slate-700 text-xs">กำลังโหลดข้อมูล...</span>
+                        <span id="frameCounter" class="bg-slate-100 px-2 py-0.5 rounded text-slate-600 font-medium">0 / 0</span>
+                    </div>
+
+                    <input type="range" id="timelineSlider" min="0" max="0" value="0" oninput="onSliderChange(this.value)" class="w-full accent-blue-600 cursor-pointer h-1.5 bg-slate-100 rounded-lg">
+
+                    <div class="flex flex-wrap items-center justify-center gap-2 pt-0.5">
+                        <button id="prevBtn" onclick="prevImage()" class="px-3 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-medium transition disabled:opacity-40">
+                            <i class="fa-solid fa-chevron-left mr-1"></i> ย้อนหลัง
+                        </button>
+                        
+                        <button id="playBtn" onclick="togglePlayLoop()" class="px-5 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-medium transition flex items-center gap-1.5 shadow-sm shadow-blue-200">
+                            <i id="playIcon" class="fa-solid fa-play"></i> <span id="playText">เล่นวิดีโอ Loop ย้อนหลัง</span>
+                        </button>
+
+                        <button id="nextBtn" onclick="nextImage()" class="px-3 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-medium transition disabled:opacity-40">
+                            ถัดไป <i class="fa-solid fa-chevron-right ml-1"></i>
+                        </button>
+                    </div>
+
                 </div>
 
             </div>
 
-        </div>
-
-        <!-- Grid View Container -->
-        <div id="gridViewContainer" class="hidden">
-            <div id="gridGallery" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                <!-- JS will render grid items here -->
+            <!-- Grid View Container -->
+            <div id="gridViewContainer" class="hidden">
+                <div id="gridGallery" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                    <!-- JS will render grid items here -->
+                </div>
             </div>
-        </div>
 
-    </main>
+        </main>
+    </div>
 
     <script>
         // กำหนดข้อความต่อท้ายไฟล์ (Suffix Pattern) ตามจริงของแต่ละสถานี
@@ -184,7 +186,7 @@
             if (radarImages.length === 0) {
                 document.getElementById('timeDisplay').innerText = "ไม่พบภาพในวันที่เลือก";
                 if (spinner) spinner.style.display = 'none';
-                document.getElementById('gridGallery').innerHTML = '<p class="col-span-full text-center text-sm text-slate-400 py-10 bg-white rounded-2xl border border-slate-200">ไม่มีข้อมูลภาพเรดาร์ในระบบประจำวันที่เลือก</p>';
+                document.getElementById('gridGallery').innerHTML = '<p class="col-span-full text-center text-xs text-slate-400 py-10 bg-white rounded-xl border border-slate-200">ไม่มีข้อมูลภาพเรดาร์ในระบบประจำวันที่เลือก</p>';
                 document.getElementById('prevBtn').disabled = true;
                 document.getElementById('nextBtn').disabled = true;
                 return;
@@ -227,7 +229,7 @@
             const imgTester = new Image();
             imgTester.onload = function() {
                 document.getElementById('radarImg').src = directImageUrl;
-                document.getElementById('timeDisplay').innerHTML = `<span class="text-emerald-600 font-bold"><i class="fa-solid fa-circle text-[10px] text-emerald-500 mr-1"></i> [Real-time ล่าสุด]</span> ${filename}`;
+                document.getElementById('timeDisplay').innerHTML = `<span class="text-emerald-600 font-semibold"><i class="fa-solid fa-circle text-[9px] text-emerald-500 mr-1"></i> [Real-time ล่าสุด]</span> ${filename}`;
                 if (spinner) spinner.style.display = 'none';
             };
             
@@ -240,7 +242,7 @@
                 const prevImageUrl = `https://file.royalrain.go.th/opendata/radar_data/cappi/${station}/${prevFilename}`;
 
                 document.getElementById('radarImg').src = prevImageUrl;
-                document.getElementById('timeDisplay').innerHTML = `<span class="text-emerald-600 font-bold"><i class="fa-solid fa-circle text-[10px] text-emerald-500 mr-1"></i> [Real-time ล่าสุด]</span> ${prevFilename}`;
+                document.getElementById('timeDisplay').innerHTML = `<span class="text-emerald-600 font-semibold"><i class="fa-solid fa-circle text-[9px] text-emerald-500 mr-1"></i> [Real-time ล่าสุด]</span> ${prevFilename}`;
                 if (spinner) spinner.style.display = 'none';
             };
 
@@ -315,11 +317,11 @@
         function renderGridView() {
             const gallery = document.getElementById('gridGallery');
             gallery.innerHTML = radarImages.map((img, idx) => `
-                <div onclick="selectImageFromGrid(${idx})" class="cursor-pointer border border-slate-200 rounded-2xl overflow-hidden bg-white hover:ring-4 hover:ring-blue-500/20 hover:border-blue-500 transition duration-200 shadow-sm hover:shadow-md group">
-                    <div class="relative bg-white flex items-center justify-center p-1 min-h-[200px]">
-                        <img src="${img.url}" alt="${img.filename}" class="w-full h-auto object-contain max-h-[260px] group-hover:scale-105 transition duration-200">
+                <div onclick="selectImageFromGrid(${idx})" class="cursor-pointer border border-slate-200 rounded-xl overflow-hidden bg-white hover:ring-2 hover:ring-blue-500/30 hover:border-blue-500 transition duration-150 shadow-sm hover:shadow group">
+                    <div class="relative bg-white flex items-center justify-center p-1 min-h-[180px]">
+                        <img src="${img.url}" alt="${img.filename}" class="w-full h-auto object-contain max-h-[220px] group-hover:scale-105 transition duration-150">
                     </div>
-                    <div class="p-3 bg-slate-50 border-t border-slate-100 text-xs text-center font-medium text-slate-700 font-mono truncate">
+                    <div class="p-2 bg-slate-50 border-t border-slate-100 text-[11px] text-center font-medium text-slate-700 font-mono truncate">
                         <i class="fa-regular fa-image text-blue-600 mr-1"></i> ${img.filename}
                     </div>
                 </div>
@@ -340,14 +342,14 @@
             if (mode === 'single') {
                 singleBox.classList.remove('hidden');
                 gridBox.classList.add('hidden');
-                singleBtn.className = "px-3.5 py-1.5 bg-white text-blue-700 text-xs font-semibold rounded-lg shadow-sm transition";
-                gridBtn.className = "px-3.5 py-1.5 text-white hover:bg-white/10 text-xs font-medium rounded-lg transition";
+                singleBtn.className = "px-3 py-1 bg-white text-blue-700 text-xs font-medium rounded-lg shadow-sm transition";
+                gridBtn.className = "px-3 py-1 text-white hover:bg-white/10 text-xs font-normal rounded-lg transition";
             } else {
                 if (isPlaying) togglePlayLoop();
                 singleBox.classList.add('hidden');
                 gridBox.classList.remove('hidden');
-                gridBtn.className = "px-3.5 py-1.5 bg-white text-blue-700 text-xs font-semibold rounded-lg shadow-sm transition";
-                singleBtn.className = "px-3.5 py-1.5 text-white hover:bg-white/10 text-xs font-medium rounded-lg transition";
+                gridBtn.className = "px-3 py-1 bg-white text-blue-700 text-xs font-medium rounded-lg shadow-sm transition";
+                singleBtn.className = "px-3 py-1 text-white hover:bg-white/10 text-xs font-normal rounded-lg transition";
             }
         }
 
