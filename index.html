@@ -15,20 +15,20 @@
 
     <!-- Top & Main Section Container -->
     <div>
-        <!-- Header Bar ขนาดใหญ่เท่าเว็บน้ำในเขื่อน -->
+        <!-- Header Bar ขนาดใหญ่และอ่านง่ายเท่าเว็บน้ำในเขื่อน -->
         <header class="bg-gradient-to-r from-blue-700 via-blue-600 to-cyan-600 text-white shadow-md sticky top-0 z-50">
-            <div class="max-w-7xl mx-auto px-4 py-3 md:py-4 flex flex-wrap items-center justify-between gap-3">
+            <div class="max-w-7xl mx-auto px-4 py-3.5 md:py-4 flex flex-wrap items-center justify-between gap-4">
                 
                 <!-- Logo & Title -->
-                <div class="flex items-center gap-3.5">
-                    <div class="w-11 h-11 bg-white/20 backdrop-blur-md rounded-2xl flex items-center justify-center shadow-inner border border-white/30 flex-shrink-0">
-                        <i class="fa-solid fa-radar text-white text-2xl"></i>
+                <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 bg-white/20 backdrop-blur-md rounded-2xl flex items-center justify-center shadow-inner border border-white/30 flex-shrink-0">
+                        <i class="fa-solid fa-wifi text-white text-2xl rotate-45"></i>
                     </div>
                     <div>
-                        <h1 class="text-2xl md:text-3xl font-bold tracking-tight text-white leading-tight">
+                        <h1 class="text-2xl md:text-3xl font-bold tracking-wide text-white leading-snug">
                             ภาพเรดาร์ทั่วประเทศ
                         </h1>
-                        <p class="text-xs text-blue-100 font-light opacity-90 mt-0.5">
+                        <p class="text-xs md:text-sm text-blue-100 font-light opacity-90 tracking-wide mt-0.5">
                             Thailand Royal Rainmaking Radar Tracker by Sumet Prapasathit
                         </p>
                     </div>
@@ -49,18 +49,18 @@
             </div>
         </header>
 
-        <main class="max-w-7xl mx-auto px-4 py-3">
+        <main class="max-w-7xl mx-auto px-4 py-3.5">
 
             <!-- Controls Section Card -->
-            <div class="bg-white rounded-2xl p-3 border border-slate-200/80 mb-2 shadow-sm">
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-3 items-start">
+            <div class="bg-white rounded-2xl p-4 border border-slate-200/80 mb-3 shadow-sm">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-start">
                     
                     <!-- 1. เลือกสถานี -->
                     <div>
-                        <label class="block text-xs font-semibold text-slate-500 mb-1">
-                            <i class="fa-solid fa-tower-cell text-blue-600 mr-1"></i> เลือกสถานีเรดาร์
+                        <label class="block text-xs font-semibold text-slate-500 tracking-wide mb-1.5">
+                            <i class="fa-solid fa-tower-cell text-blue-600 mr-1.5"></i> เลือกสถานีเรดาร์
                         </label>
-                        <select id="stationSelect" onchange="onStationChange()" class="w-full bg-slate-50 border border-slate-200 text-slate-800 rounded-xl px-3 py-1.5 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition">
+                        <select id="stationSelect" onchange="onStationChange()" class="w-full bg-slate-50 border border-slate-200 text-slate-800 rounded-xl px-3.5 py-2 text-xs md:text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition">
                             <option value="sattahip">สถานีสัตหีบ (ชลบุรี)</option>
                             <option value="omkoi">สถานีอมก๋อย (เชียงใหม่)</option>
                             <option value="phnom">สถานีพนม (สุราษฎร์ธานี)</option>
@@ -71,28 +71,28 @@
 
                     <!-- 2. เลือกวันที่ -->
                     <div>
-                        <label class="block text-xs font-semibold text-slate-500 mb-1">
-                            <i class="fa-regular fa-calendar-days text-blue-600 mr-1"></i> เลือกวันที่ดูย้อนหลัง
+                        <label class="block text-xs font-semibold text-slate-500 tracking-wide mb-1.5">
+                            <i class="fa-regular fa-calendar-days text-blue-600 mr-1.5"></i> เลือกวันที่ดูย้อนหลัง
                         </label>
-                        <input type="date" id="datePicker" onchange="loadRadarData()" class="w-full bg-slate-50 border border-slate-200 text-slate-800 rounded-xl px-3 py-1.5 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition">
+                        <input type="date" id="datePicker" onchange="loadRadarData()" class="w-full bg-slate-50 border border-slate-200 text-slate-800 rounded-xl px-3.5 py-2 text-xs md:text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition">
                     </div>
 
                     <!-- 3. ปุ่ม Refresh และ ปุ่มควบคุมวิดีโอ Loop -->
-                    <div class="space-y-1.5">
-                        <button id="latestBtn" class="w-full bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-semibold py-1.5 px-3 rounded-xl text-xs transition flex items-center justify-center gap-1.5 shadow-sm shadow-blue-200">
+                    <div class="space-y-2">
+                        <button id="latestBtn" class="w-full bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-semibold py-2 px-4 rounded-xl text-xs md:text-sm transition flex items-center justify-center gap-2 shadow-sm shadow-blue-200 tracking-wide">
                             <i class="fa-solid fa-rotate text-amber-300"></i> ดูภาพปัจจุบัน (Refresh)
                         </button>
 
-                        <div id="videoControlBar" class="flex items-center justify-between gap-1 bg-slate-50 p-1 rounded-xl border border-slate-200">
-                            <button id="prevBtn" onclick="prevImage()" class="flex-1 py-1 px-2 bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 rounded-lg text-xs font-medium transition disabled:opacity-40 shadow-sm flex items-center justify-center gap-1">
+                        <div id="videoControlBar" class="flex items-center justify-between gap-1.5 bg-slate-50 p-1 rounded-xl border border-slate-200">
+                            <button id="prevBtn" onclick="prevImage()" class="flex-1 py-1.5 px-2 bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 rounded-lg text-xs font-medium transition disabled:opacity-40 shadow-sm flex items-center justify-center gap-1">
                                 <i class="fa-solid fa-chevron-left text-[10px]"></i> ย้อนหลัง
                             </button>
                             
-                            <button id="playBtn" onclick="togglePlayLoop()" class="flex-[1.4] py-1 px-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-medium transition flex items-center justify-center gap-1 shadow-sm">
+                            <button id="playBtn" onclick="togglePlayLoop()" class="flex-[1.4] py-1.5 px-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-medium transition flex items-center justify-center gap-1.5 shadow-sm">
                                 <i id="playIcon" class="fa-solid fa-play text-[10px]"></i> <span id="playText">เล่น Loop ย้อนหลัง</span>
                             </button>
 
-                            <button id="nextBtn" onclick="nextImage()" class="flex-1 py-1 px-2 bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 rounded-lg text-xs font-medium transition disabled:opacity-40 shadow-sm flex items-center justify-center gap-1">
+                            <button id="nextBtn" onclick="nextImage()" class="flex-1 py-1.5 px-2 bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 rounded-lg text-xs font-medium transition disabled:opacity-40 shadow-sm flex items-center justify-center gap-1">
                                 ถัดไป <i class="fa-solid fa-chevron-right text-[10px]"></i>
                             </button>
                         </div>
@@ -102,12 +102,12 @@
             </div>
 
             <!-- Notice Alert -->
-            <div class="bg-blue-50/80 border border-blue-100 rounded-xl px-3 py-1.5 mb-2 flex items-center justify-between text-xs text-blue-800 gap-2">
-                <div class="flex items-center gap-2 truncate">
+            <div class="bg-blue-50/80 border border-blue-100 rounded-xl px-3.5 py-2 mb-2.5 flex items-center justify-between text-xs text-blue-800 gap-3">
+                <div class="flex items-center gap-2 truncate tracking-wide">
                     <i class="fa-solid fa-circle-info text-blue-600 text-xs flex-shrink-0"></i>
                     <span class="truncate">วิดีโอ และภาพเรดาร์แบบตาราง อาจยังไม่เป็นปัจจุบัน หากต้องการดูภาพปัจจุบัน ให้กดปุ่ม Refresh</span>
                 </div>
-                <div id="timeDisplay" class="font-bold text-slate-700 text-xs flex-shrink-0 bg-white/80 px-2 py-0.5 rounded border border-blue-100">
+                <div id="timeDisplay" class="font-bold text-slate-700 text-xs flex-shrink-0 bg-white/90 px-2.5 py-1 rounded-lg border border-blue-100 shadow-sm">
                     กำลังโหลดข้อมูล...
                 </div>
             </div>
@@ -115,16 +115,16 @@
             <!-- Single View Container -->
             <div id="singleViewContainer">
                 
-                <!-- Radar Display Box ขยายภาพให้ใหญ่ที่สุดพอดีกับความสูงจอภาพ -->
-                <div class="bg-white border border-slate-200/80 rounded-2xl p-2 relative flex items-center justify-center min-h-[400px] max-h-[calc(100vh-220px)] shadow-sm overflow-hidden">
+                <!-- Radar Display Box ปรับลดขนาดภาพเล็กน้อยให้อยู่ในกรอบอย่างลงตัว -->
+                <div class="bg-white border border-slate-200/80 rounded-2xl p-2 relative flex items-center justify-center min-h-[340px] max-h-[380px] md:max-h-[420px] shadow-sm overflow-hidden">
                     
                     <!-- Loading Spinner -->
                     <div id="loadingSpinner" class="absolute inset-0 bg-white/90 z-10 flex flex-col items-center justify-center gap-2 backdrop-blur-sm">
                         <i class="fa-solid fa-circle-notch fa-spin text-blue-600 text-2xl"></i>
-                        <span class="text-xs font-medium text-slate-600">กำลังประมวลผลภาพเรดาร์...</span>
+                        <span class="text-xs font-medium text-slate-600 tracking-wide">กำลังประมวลผลภาพเรดาร์...</span>
                     </div>
 
-                    <img id="radarImg" src="" alt="Radar Display" class="w-full h-auto max-h-[calc(100vh-235px)] object-contain rounded-lg">
+                    <img id="radarImg" src="" alt="Radar Display" class="w-full h-auto max-h-[370px] md:max-h-[410px] object-contain rounded-lg">
                 </div>
 
             </div>
@@ -139,16 +139,16 @@
         </main>
     </div>
 
-    <!-- Footer Bar แบบเดียวกับเว็บน้ำในเขื่อน -->
-    <footer class="bg-white border-t border-slate-200 mt-4 py-3 text-center text-xs text-slate-500">
-        <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
+    <!-- Footer Bar โทนสีเข้มตามต้องการ -->
+    <footer class="bg-slate-800 border-t border-slate-700 text-slate-300 py-3.5 text-xs">
+        <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2.5 tracking-wide">
             <div>
-                © 2026 Thailand Radar Tracker | พัฒนาโดย <span class="font-semibold text-slate-700">Sumet Prapasathit</span>
+                © 2026 Thailand Radar Tracker | พัฒนาโดย <span class="font-semibold text-white">Sumet Prapasathit</span>
             </div>
             <div class="flex items-center gap-3 text-slate-400">
                 <span>ข้อมูลอ้างอิง: กรมฝนหลวงและการบินเกษตร</span>
                 <span>•</span>
-                <a href="https://file.royalrain.go.th" target="_blank" class="text-blue-600 hover:underline">Royal Rain OpenData</a>
+                <a href="https://file.royalrain.go.th" target="_blank" class="text-cyan-400 hover:text-cyan-300 hover:underline">Royal Rain OpenData</a>
             </div>
         </div>
     </footer>
@@ -167,6 +167,16 @@
         let currentIndex = 0;
         let isPlaying = false;
         let playInterval = null;
+
+        // ฟังก์ชันจัดฟอร์แมตชื่อไฟล์เป็น วันที่ ชั่วโมง นาที (เช่น 2026-10-20 08:36 น.)
+        function formatFilenameToDateTime(filename) {
+            const match = filename.match(/(\d{4})(\d{2})(\d{2})(\d{2})(\d{2})/);
+            if (match) {
+                const [_, year, month, day, hour, minute] = match;
+                return `${year}-${month}-${day} ${hour}:${minute} น.`;
+            }
+            return filename;
+        }
 
         // ฟังก์ชันโหลดข้อมูลภาพย้อนหลังสำหรับ Slider และ Grid
         async function loadRadarData() {
@@ -238,8 +248,9 @@
             // 4. ทดสอบโหลดภาพ
             const imgTester = new Image();
             imgTester.onload = function() {
+                const formattedTime = formatFilenameToDateTime(filename);
                 document.getElementById('radarImg').src = directImageUrl;
-                document.getElementById('timeDisplay').innerHTML = `<span class="text-emerald-600 font-bold"><i class="fa-solid fa-circle text-[9px] text-emerald-500 mr-1"></i> [Real-time ล่าสุด]</span> ${filename}`;
+                document.getElementById('timeDisplay').innerHTML = `<span class="text-emerald-600 font-bold"><i class="fa-solid fa-circle text-[9px] text-emerald-500 mr-1"></i> [Real-time ล่าสุด]</span> ${formattedTime}`;
                 if (spinner) spinner.style.display = 'none';
             };
             
@@ -251,8 +262,9 @@
                 const prevFilename = `${year}${month}${day}${prevHours}${prevMinutes}${suffix}`;
                 const prevImageUrl = `https://file.royalrain.go.th/opendata/radar_data/cappi/${station}/${prevFilename}`;
 
+                const formattedTime = formatFilenameToDateTime(prevFilename);
                 document.getElementById('radarImg').src = prevImageUrl;
-                document.getElementById('timeDisplay').innerHTML = `<span class="text-emerald-600 font-bold"><i class="fa-solid fa-circle text-[9px] text-emerald-500 mr-1"></i> [Real-time ล่าสุด]</span> ${prevFilename}`;
+                document.getElementById('timeDisplay').innerHTML = `<span class="text-emerald-600 font-bold"><i class="fa-solid fa-circle text-[9px] text-emerald-500 mr-1"></i> [Real-time ล่าสุด]</span> ${formattedTime}`;
                 if (spinner) spinner.style.display = 'none';
             };
 
@@ -268,7 +280,7 @@
             currentIndex = parseInt(index);
             const item = radarImages[currentIndex];
             document.getElementById('radarImg').src = item.url;
-            document.getElementById('timeDisplay').innerText = item.filename;
+            document.getElementById('timeDisplay').innerText = formatFilenameToDateTime(item.filename);
             
             document.getElementById('prevBtn').disabled = (currentIndex === 0);
             document.getElementById('nextBtn').disabled = (currentIndex === radarImages.length - 1);
@@ -320,7 +332,7 @@
                         <img src="${img.url}" alt="${img.filename}" class="w-full h-auto object-contain max-h-[220px] group-hover:scale-105 transition duration-150">
                     </div>
                     <div class="p-2 bg-slate-50 border-t border-slate-100 text-[11px] text-center font-medium text-slate-700 font-mono truncate">
-                        <i class="fa-regular fa-image text-blue-600 mr-1"></i> ${img.filename}
+                        <i class="fa-regular fa-clock text-blue-600 mr-1"></i> ${formatFilenameToDateTime(img.filename)}
                     </div>
                 </div>
             `).join('');
