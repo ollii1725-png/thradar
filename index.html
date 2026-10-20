@@ -21,15 +21,22 @@
                 
                 <!-- Logo & Title -->
                 <div class="flex items-center gap-3.5">
-                    <!-- โลโก้รูปจานเรดาร์แบบ SVG คล้ายภาพตัวอย่าง -->
-                    <div class="w-12 h-12 bg-white/20 backdrop-blur-md rounded-2xl flex items-center justify-center shadow-inner border border-white/30 flex-shrink-0 p-2">
-                        <svg class="w-full h-full text-white fill-current" viewBox="0 0 24 24">
-                            <!-- จานเรดาร์และฐาน -->
-                            <path d="M12.5 12.872a.75.75 0 0 1 .15.015l5.25 1.5a.75.75 0 0 1 .43.985l-.5 1.25a6.5 6.5 0 0 1-8.243 3.664.75.75 0 0 1-.437-.98l.5-1.25a.75.75 0 0 1 .982-.435l1.618.462a.75.75 0 0 0 .25-.013l-3.32-6.64a.75.75 0 0 1 .336-.998l2.984-1.492a.75.75 0 0 1 .998.336l3.018 6.036ZM5 20.25a.75.75 0 0 1 .75-.75h12.5a.75.75 0 0 1 0 1.5H5.75A.75.75 0 0 1 5 20.25ZM9.1 17.5l-1.268 2.25h8.336l-1.268-2.25H9.1Z"/>
-                            <!-- คลื่นสัญญาณ 1 -->
-                            <path d="M14.657 5.343a.75.75 0 0 1 1.06 0 7.5 7.5 0 0 1 0 10.607.75.75 0 0 1-1.06-1.061 6 6 0 0 0 0-8.485.75.75 0 0 1 0-1.061Z"/>
-                            <!-- คลื่นสัญญาณ 2 -->
-                            <path d="M16.778 3.222a.75.75 0 0 1 1.061 0 10.5 10.5 0 0 1 0 14.849.75.75 0 0 1-1.061-1.06 9 9 0 0 0 0-12.728.75.75 0 0 1 0-1.061Z"/>
+                    <!-- โลโก้รูปหน้าจอเรดาร์กวาดสัญญาณแบบวงกลม (SVG) ตรงตามภาพตัวอย่าง -->
+                    <div class="w-11 h-11 bg-white rounded-2xl flex items-center justify-center shadow-md border border-white/40 flex-shrink-0 p-1.5">
+                        <svg class="w-full h-full text-slate-900" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="5">
+                            <!-- วงกลมรอบนอกสุด -->
+                            <circle cx="50" cy="50" r="44" stroke-width="7"/>
+                            <!-- วงกลมชั้นกลางและชั้นใน -->
+                            <circle cx="50" cy="50" r="30" stroke-width="4"/>
+                            <circle cx="50" cy="50" r="15" stroke-width="4"/>
+                            <!-- เส้นกากบาท แกน X และ แกน Y -->
+                            <line x1="50" y1="6" x2="50" y2="94" stroke-width="4"/>
+                            <line x1="6" y1="50" x2="94" y2="50" stroke-width="4"/>
+                            <!-- แถบพัดกวาดเรดาร์ (Radar Sweep Sector) -->
+                            <path d="M 50 50 L 88 66 A 44 44 0 0 1 50 94 Z" fill="currentColor" stroke="none"/>
+                            <!-- จุดเป้าหมายตรวจจับ บนจอเรดาร์ -->
+                            <circle cx="38" cy="28" r="5" fill="currentColor" stroke="none"/>
+                            <circle cx="28" cy="62" r="5" fill="currentColor" stroke="none"/>
                         </svg>
                     </div>
                     <div>
@@ -63,7 +70,7 @@
             <div class="bg-white rounded-2xl p-4 border border-slate-200/80 mb-3 shadow-sm">
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-start">
                     
-                    <!-- 1. เลือกสถานี -->
+                    <!-- 1. เลือกสถานี (อัปเดต phanom และ takhli) -->
                     <div>
                         <label class="block text-xs font-semibold text-slate-500 tracking-wide mb-1.5">
                             <i class="fa-solid fa-tower-cell text-blue-600 mr-1.5"></i> เลือกสถานีเรดาร์
@@ -71,8 +78,8 @@
                         <select id="stationSelect" onchange="onStationChange()" class="w-full bg-slate-50 border border-slate-200 text-slate-800 rounded-xl px-3.5 py-2 text-xs md:text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition">
                             <option value="sattahip">สถานีสัตหีบ (ชลบุรี)</option>
                             <option value="omkoi">สถานีอมก๋อย (เชียงใหม่)</option>
-                            <option value="phnom">สถานีพนม (สุราษฎร์ธานี)</option>
-                            <option value="takli">สถานีตาคลี (นครสวรรค์)</option>
+                            <option value="phanom">สถานีพนม (สุราษฎร์ธานี)</option>
+                            <option value="takhli">สถานีตาคลี (นครสวรรค์)</option>
                             <option value="phimai">สถานีพิมาย (นครราชสีมา)</option>
                         </select>
                     </div>
@@ -123,8 +130,8 @@
             <!-- Single View Container -->
             <div id="singleViewContainer">
                 
-                <!-- Radar Display Box ขยายภาพให้ใหญ่ขึ้น (680px - 800px) -->
-                <div class="bg-white border border-slate-200/80 rounded-2xl p-2.5 relative flex items-center justify-center min-h-[500px] max-h-[680px] md:max-h-[800px] shadow-sm overflow-hidden">
+                <!-- Radar Display Box จำกัดความสูงไม่เกิน 600px และไม่เสียสัดส่วน -->
+                <div class="bg-white border border-slate-200/80 rounded-2xl p-2.5 relative flex items-center justify-center min-h-[400px] max-h-[600px] shadow-sm overflow-hidden">
                     
                     <!-- Loading Spinner -->
                     <div id="loadingSpinner" class="absolute inset-0 bg-white/90 z-10 flex flex-col items-center justify-center gap-2 backdrop-blur-sm">
@@ -132,7 +139,7 @@
                         <span class="text-xs font-medium text-slate-600 tracking-wide">กำลังประมวลผลภาพเรดาร์...</span>
                     </div>
 
-                    <img id="radarImg" src="" alt="Radar Display" class="w-full h-auto max-h-[670px] md:max-h-[790px] object-contain rounded-lg">
+                    <img id="radarImg" src="" alt="Radar Display" class="w-full h-auto max-h-[580px] object-contain rounded-lg">
                 </div>
 
             </div>
@@ -162,12 +169,12 @@
     </footer>
 
     <script>
-        // กำหนดข้อความต่อท้ายไฟล์ (Suffix Pattern) ตามจริงของแต่ละสถานี
+        // กำหนดข้อความต่อท้ายไฟล์ (Suffix Pattern) อัปเดตตามชื่อสถานีจริง (phanom และ takhli)
         const STATION_PATTERNS = {
             sattahip: "0300dBZ.cappi.png",
             omkoi:    "0200dBZ.cappi.png",
-            phnom:    "0300dBZ.cappi.png",
-            takli:    "0400dBZ.cappi.png",
+            phanom:   "0300dBZ.cappi.png",
+            takhli:   "0400dBZ.cappi.png",
             phimai:   "0400dBZ.cappi.png"
         };
         
@@ -176,12 +183,20 @@
         let isPlaying = false;
         let playInterval = null;
 
-        // ฟังก์ชันจัดฟอร์แมตชื่อไฟล์เป็น วันที่ ชั่วโมง นาที (เช่น 2026-10-20 08:36 น.)
+        // ฟังก์ชันแปลงเวลา UTC ในชื่อไฟล์ เป็นเวลาประเทศไทย (ICT / UTC+7)
         function formatFilenameToDateTime(filename) {
             const match = filename.match(/(\d{4})(\d{2})(\d{2})(\d{2})(\d{2})/);
             if (match) {
                 const [_, year, month, day, hour, minute] = match;
-                return `${year}-${month}-${day} ${hour}:${minute} น.`;
+                const utcDate = new Date(Date.UTC(parseInt(year), parseInt(month) - 1, parseInt(day), parseInt(hour), parseInt(minute)));
+                
+                const localYear = utcDate.getFullYear();
+                const localMonth = String(utcDate.getMonth() + 1).padStart(2, '0');
+                const localDay = String(utcDate.getDate()).padStart(2, '0');
+                const localHour = String(utcDate.getHours()).padStart(2, '0');
+                const localMinute = String(utcDate.getMinutes()).padStart(2, '0');
+
+                return `${localYear}-${localMonth}-${localDay} ${localHour}:${localMinute} น.`;
             }
             return filename;
         }
@@ -243,7 +258,7 @@
             const currentMinutes = now.getUTCMinutes();
             const roundedMinutes = Math.floor(currentMinutes / 6) * 6;
 
-            // 3. ฟอร์แมต YYYYMMDD และ HHMM
+            // 3. ฟอร์แมต YYYYMMDD และ HHMM (เวลา UTC)
             const year = now.getUTCFullYear();
             const month = String(now.getUTCMonth() + 1).padStart(2, '0');
             const day = String(now.getUTCDate()).padStart(2, '0');
