@@ -58,29 +58,63 @@
             </div>
         </header>
 
-        <main class="max-w-7xl mx-auto px-4 py-4">
+        <main class="max-w-7xl mx-auto px-3 sm:px-4 py-3 sm:py-4">
 
-            <!-- Single View Container (บนมือถือเรียง ภาพเรดาร์ -> คอนโทรล) -->
+            <!-- Single View Container -->
             <div id="singleViewContainer">
-                <div class="flex flex-col lg:grid lg:grid-cols-3 gap-4 items-stretch">
+                <div class="flex flex-col lg:grid lg:grid-cols-3 gap-3.5 sm:gap-4 items-stretch">
                     
-                    <!-- Mobile Order 1: Real-time Status Bar -->
-                    <div class="order-1 lg:col-span-2 lg:order-2 flex flex-col justify-between space-y-2">
-                        <div class="bg-white border border-slate-200/80 rounded-2xl p-3 shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
-                            <div class="flex items-center gap-2 text-xs text-slate-600">
+                    <!-- Display Area & Quick Mobile Controls -->
+                    <div class="lg:col-span-2 flex flex-col justify-between space-y-2.5">
+                        
+                        <!-- 1. Real-time Status Bar -->
+                        <div class="bg-white border border-slate-200/80 rounded-2xl p-2.5 sm:p-3 shadow-sm flex items-center justify-between gap-2">
+                            <div class="flex items-center gap-1.5 text-xs text-slate-600">
                                 <span class="relative flex h-2.5 w-2.5">
                                   <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
                                   <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
                                 </span>
-                                <span class="font-medium text-slate-700">ภาพเรดาร์ตรวจอากาศปัจจุบัน</span>
+                                <span class="font-medium text-slate-700 hidden sm:inline">เรดาร์ปัจจุบัน</span>
                             </div>
-                            <div id="timeDisplay" class="font-bold text-slate-700 text-xs bg-slate-50 px-3 py-1.5 rounded-xl border border-slate-200 shadow-inner">
+                            <div id="timeDisplay" class="font-bold text-slate-700 text-xs bg-slate-50 px-2.5 py-1 rounded-xl border border-slate-200 shadow-inner">
                                 กำลังโหลดข้อมูล...
                             </div>
                         </div>
 
-                        <!-- Mobile Order 2: Radar Display Box -->
-                        <div class="bg-white border border-slate-200/80 rounded-2xl p-2.5 relative flex-1 flex items-center justify-center min-h-[380px] sm:min-h-[500px] lg:min-h-[650px] max-h-[750px] shadow-sm overflow-hidden">
+                        <!-- 2. Mobile Quick Control Bar (แสดงเฉพาะบนมือถือเพื่อความสะดวก) -->
+                        <div class="lg:hidden bg-white border border-slate-200/80 rounded-2xl p-2 shadow-sm space-y-2">
+                            <div class="grid grid-cols-2 gap-2">
+                                <select id="stationSelectMobile" onchange="syncAndChangeStation(this.value)" class="w-full bg-slate-50 border border-slate-200 text-slate-800 rounded-xl px-2.5 py-1.5 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    <option value="sattahip">สถานีสัตหีบ (ชลบุรี)</option>
+                                    <option value="omkoi">สถานีอมก๋อย (เชียงใหม่)</option>
+                                    <option value="phanom">สถานีพนม (สุราษฎร์ฯ)</option>
+                                    <option value="takhli">สถานีตาคลี (นครสวรรค์)</option>
+                                    <option value="phimai">สถานีพิมาย (โคราช)</option>
+                                </select>
+
+                                <button onclick="fetchRealtimeLatestImage()" class="bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-semibold py-1.5 px-3 rounded-xl text-xs transition flex items-center justify-center gap-1 shadow-sm">
+                                    <i class="fa-solid fa-rotate text-amber-300 text-[10px]"></i> รีเฟรชภาพล่าสุด
+                                </button>
+                            </div>
+
+                            <!-- ปุ่มเล่นวิดีโอแบบย่อบนมือถือ -->
+                            <div class="flex items-center justify-between gap-1 bg-slate-50 p-1 rounded-xl border border-slate-200">
+                                <button onclick="prevImage()" class="flex-1 py-1 px-2 bg-white text-slate-700 border border-slate-200 rounded-lg text-xs font-medium transition shadow-sm active:bg-slate-100">
+                                    <i class="fa-solid fa-chevron-left text-[9px]"></i> ย้อน
+                                </button>
+                                
+                                <button onclick="togglePlayLoop()" class="flex-[1.5] py-1 px-2 bg-blue-600 text-white rounded-lg text-xs font-medium transition shadow-sm active:bg-blue-700 flex items-center justify-center gap-1">
+                                    <i id="playIconMobile" class="fa-solid fa-play text-[9px]"></i> <span id="playTextMobile">เล่น Loop</span>
+                                </button>
+
+                                <button onclick="nextImage()" class="flex-1 py-1 px-2 bg-white text-slate-700 border border-slate-200 rounded-lg text-xs font-medium transition shadow-sm active:bg-slate-100">
+                                    ถัดไป <i class="fa-solid fa-chevron-right text-[9px]"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- 3. Radar Display Box (ขยายใหญ่เต็มหน้าจอมือถือ) -->
+                        <div class="bg-white border border-slate-200/80 rounded-2xl p-1.5 sm:p-2.5 relative flex items-center justify-center min-h-[350px] sm:min-h-[500px] lg:min-h-[650px] max-h-[750px] shadow-sm overflow-hidden">
                             
                             <!-- Loading Spinner -->
                             <div id="loadingSpinner" class="absolute inset-0 bg-white/90 z-10 flex flex-col items-center justify-center gap-2 backdrop-blur-sm">
@@ -92,20 +126,20 @@
                         </div>
                     </div>
 
-                    <!-- Mobile Order 3: Left/Bottom Column Control Panel -->
-                    <div class="order-2 lg:col-span-1 lg:order-1 space-y-4 flex flex-col justify-between">
+                    <!-- Full Control Panel (Desktop & Detail Settings บนมือถือ) -->
+                    <div class="lg:col-span-1 space-y-4 flex flex-col justify-between">
                         <div class="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-sm space-y-4">
                             <h2 class="text-sm font-bold text-slate-700 pb-2 border-b border-slate-100 flex items-center justify-between">
                                 <span><i class="fa-solid fa-sliders text-blue-600 mr-2"></i>ตัวเลือกและการควบคุม</span>
                                 <span class="text-[10px] bg-blue-50 text-blue-600 px-2 py-0.5 rounded-full font-semibold">THRADAR</span>
                             </h2>
 
-                            <!-- 1. เลือกสถานี -->
-                            <div>
+                            <!-- 1. เลือกสถานี (Desktop) -->
+                            <div class="hidden lg:block">
                                 <label class="block text-xs font-semibold text-slate-500 tracking-wide mb-1.5">
                                     <i class="fa-solid fa-tower-cell text-blue-600 mr-1.5"></i> เลือกสถานีเรดาร์
                                 </label>
-                                <select id="stationSelect" onchange="onStationChange()" class="w-full bg-slate-50 border border-slate-200 text-slate-800 rounded-xl px-3.5 py-2 text-xs md:text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition">
+                                <select id="stationSelect" onchange="syncAndChangeStation(this.value)" class="w-full bg-slate-50 border border-slate-200 text-slate-800 rounded-xl px-3.5 py-2 text-xs md:text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition">
                                     <option value="sattahip">สถานีสัตหีบ (ชลบุรี)</option>
                                     <option value="omkoi">สถานีอมก๋อย (เชียงใหม่)</option>
                                     <option value="phanom">สถานีพนม (สุราษฎร์ธานี)</option>
@@ -122,15 +156,15 @@
                                 <input type="date" id="datePicker" onchange="loadRadarData()" class="w-full bg-slate-50 border border-slate-200 text-slate-800 rounded-xl px-3.5 py-2 text-xs md:text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition">
                             </div>
 
-                            <!-- 3. ปุ่ม Refresh -->
-                            <div>
-                                <button id="latestBtn" class="w-full bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-semibold py-2.5 px-4 rounded-xl text-xs md:text-sm transition flex items-center justify-center gap-2 shadow-sm shadow-blue-200 tracking-wide">
+                            <!-- 3. ปุ่ม Refresh (Desktop) -->
+                            <div class="hidden lg:block">
+                                <button id="latestBtn" onclick="fetchRealtimeLatestImage()" class="w-full bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-semibold py-2.5 px-4 rounded-xl text-xs md:text-sm transition flex items-center justify-center gap-2 shadow-sm shadow-blue-200 tracking-wide">
                                     <i class="fa-solid fa-rotate text-amber-300"></i> ดูภาพปัจจุบัน (Refresh)
                                 </button>
                             </div>
 
-                            <!-- 4. ชุดปุ่มวิดีโอ Loop -->
-                            <div class="pt-2 border-t border-slate-100">
+                            <!-- 4. ชุดปุ่มวิดีโอ Loop (Desktop) -->
+                            <div class="hidden lg:block pt-2 border-t border-slate-100">
                                 <label class="block text-xs font-semibold text-slate-500 tracking-wide mb-2">
                                     <i class="fa-solid fa-film text-blue-600 mr-1.5"></i> เล่นวิดีโอย้อนหลัง 24 ชม.
                                 </label>
@@ -151,7 +185,7 @@
                         </div>
 
                         <!-- คำอธิบายระดับความแรงฝน (dBZ) ตามเกณฑ์เรดาร์กรมฝนหลวงฯ -->
-                        <div class="bg-white rounded-2xl p-3.5 border border-slate-200/80 shadow-sm mt-4">
+                        <div class="bg-white rounded-2xl p-3.5 border border-slate-200/80 shadow-sm mt-3">
                             <span class="text-xs font-semibold text-slate-700 block mb-2 flex items-center justify-between">
                                 <span><i class="fa-solid fa-layer-group text-blue-600 mr-1.5"></i>เกณฑ์สะท้อนฝน (dBZ)</span>
                                 <span class="text-[10px] text-slate-400">Royal Rain Scale</span>
@@ -237,6 +271,14 @@
         let isPlaying = false;
         let playInterval = null;
 
+        function syncAndChangeStation(value) {
+            const selectDesktop = document.getElementById('stationSelect');
+            const selectMobile = document.getElementById('stationSelectMobile');
+            if (selectDesktop) selectDesktop.value = value;
+            if (selectMobile) selectMobile.value = value;
+            onStationChange();
+        }
+
         function formatFilenameToDateTime(filename) {
             const match = filename.match(/(\d{4})(\d{2})(\d{2})(\d{2})(\d{2})/);
             if (match) {
@@ -283,8 +325,6 @@
                 document.getElementById('timeDisplay').innerText = "ไม่พบภาพในวันที่เลือก";
                 if (spinner) spinner.style.display = 'none';
                 document.getElementById('gridGallery').innerHTML = '<p class="col-span-full text-center text-xs text-slate-400 py-10 bg-white rounded-xl border border-slate-200">ไม่มีข้อมูลภาพเรดาร์ในระบบประจำวันที่เลือก</p>';
-                document.getElementById('prevBtn').disabled = true;
-                document.getElementById('nextBtn').disabled = true;
                 return;
             }
 
@@ -352,13 +392,14 @@
             document.getElementById('radarImg').src = item.url;
             document.getElementById('timeDisplay').innerText = formatFilenameToDateTime(item.filename);
             
-            document.getElementById('prevBtn').disabled = (currentIndex === 0);
-            document.getElementById('nextBtn').disabled = (currentIndex === radarImages.length - 1);
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+            if (prevBtn) prevBtn.disabled = (currentIndex === 0);
+            if (nextBtn) nextBtn.disabled = (currentIndex === radarImages.length - 1);
             
             const spinner = document.getElementById('loadingSpinner');
             if (spinner) spinner.style.display = 'none';
 
-            // ไฮไลต์การ์ดที่กำลังเลือกอยู่หากแสดงผลในโหมดตาราง
             highlightActiveGridCard(currentIndex);
         }
 
@@ -373,23 +414,33 @@
         function stopPlayLoop() {
             const playIcon = document.getElementById('playIcon');
             const playText = document.getElementById('playText');
+            const playIconMobile = document.getElementById('playIconMobile');
+            const playTextMobile = document.getElementById('playTextMobile');
+
             isPlaying = false;
             if (playIcon) playIcon.className = "fa-solid fa-play text-[10px]";
             if (playText) playText.innerText = "เล่น Loop";
+            if (playIconMobile) playIconMobile.className = "fa-solid fa-play text-[9px]";
+            if (playTextMobile) playTextMobile.innerText = "เล่น Loop";
+
             if (playInterval) clearInterval(playInterval);
         }
 
         function togglePlayLoop() {
             const playIcon = document.getElementById('playIcon');
             const playText = document.getElementById('playText');
+            const playIconMobile = document.getElementById('playIconMobile');
+            const playTextMobile = document.getElementById('playTextMobile');
 
             if (isPlaying) {
                 stopPlayLoop();
             } else {
                 if (radarImages.length === 0) return;
                 isPlaying = true;
-                playIcon.className = "fa-solid fa-pause text-[10px]";
-                playText.innerText = "หยุดเล่น";
+                if (playIcon) playIcon.className = "fa-solid fa-pause text-[10px]";
+                if (playText) playText.innerText = "หยุดเล่น";
+                if (playIconMobile) playIconMobile.className = "fa-solid fa-pause text-[9px]";
+                if (playTextMobile) playTextMobile.innerText = "หยุดเล่น";
 
                 const startFrame = Math.max(0, radarImages.length - 12);
                 currentIndex = startFrame;
@@ -471,12 +522,11 @@
             }
         });
 
-        document.getElementById('latestBtn').onclick = () => {
-            fetchRealtimeLatestImage();
-        };
-
         document.addEventListener('DOMContentLoaded', async () => {
             document.getElementById('stationSelect').value = 'sattahip';
+            if (document.getElementById('stationSelectMobile')) {
+                document.getElementById('stationSelectMobile').value = 'sattahip';
+            }
 
             const now = new Date();
             const year = now.getFullYear();
