@@ -81,7 +81,7 @@
                             </div>
                         </div>
 
-                        <!-- 2. Mobile Quick Control Bar (แสดงเฉพาะบนมือถือเพื่อความสะดวก) -->
+                        <!-- 2. Mobile Quick Control Bar (ใช้งานบนมือถือ) -->
                         <div class="lg:hidden bg-white border border-slate-200/80 rounded-2xl p-2 shadow-sm space-y-2">
                             <div class="grid grid-cols-2 gap-2">
                                 <select id="stationSelectMobile" onchange="syncAndChangeStation(this.value)" class="w-full bg-slate-50 border border-slate-200 text-slate-800 rounded-xl px-2.5 py-1.5 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500">
@@ -99,7 +99,7 @@
 
                             <!-- ปุ่มเล่นวิดีโอแบบย่อบนมือถือ -->
                             <div class="flex items-center justify-between gap-1 bg-slate-50 p-1 rounded-xl border border-slate-200">
-                                <button onclick="prevImage()" class="flex-1 py-1 px-2 bg-white text-slate-700 border border-slate-200 rounded-lg text-xs font-medium transition shadow-sm active:bg-slate-100">
+                                <button id="prevBtnMobile" onclick="prevImage()" class="flex-1 py-1 px-2 bg-white text-slate-700 border border-slate-200 rounded-lg text-xs font-medium transition shadow-sm active:bg-slate-100 disabled:opacity-40">
                                     <i class="fa-solid fa-chevron-left text-[9px]"></i> ย้อน
                                 </button>
                                 
@@ -107,16 +107,14 @@
                                     <i id="playIconMobile" class="fa-solid fa-play text-[9px]"></i> <span id="playTextMobile">เล่น Loop</span>
                                 </button>
 
-                                <button onclick="nextImage()" class="flex-1 py-1 px-2 bg-white text-slate-700 border border-slate-200 rounded-lg text-xs font-medium transition shadow-sm active:bg-slate-100">
+                                <button id="nextBtnMobile" onclick="nextImage()" class="flex-1 py-1 px-2 bg-white text-slate-700 border border-slate-200 rounded-lg text-xs font-medium transition shadow-sm active:bg-slate-100 disabled:opacity-40">
                                     ถัดไป <i class="fa-solid fa-chevron-right text-[9px]"></i>
                                 </button>
                             </div>
                         </div>
 
-                        <!-- 3. Radar Display Box (ขยายใหญ่เต็มหน้าจอมือถือ) -->
+                        <!-- 3. Radar Display Box -->
                         <div class="bg-white border border-slate-200/80 rounded-2xl p-1.5 sm:p-2.5 relative flex items-center justify-center min-h-[350px] sm:min-h-[500px] lg:min-h-[650px] max-h-[750px] shadow-sm overflow-hidden">
-                            
-                            <!-- Loading Spinner -->
                             <div id="loadingSpinner" class="absolute inset-0 bg-white/90 z-10 flex flex-col items-center justify-center gap-2 backdrop-blur-sm">
                                 <i class="fa-solid fa-circle-notch fa-spin text-blue-600 text-2xl"></i>
                                 <span class="text-xs font-medium text-slate-600 tracking-wide">กำลังประมวลผลภาพเรดาร์...</span>
@@ -126,7 +124,7 @@
                         </div>
                     </div>
 
-                    <!-- Full Control Panel (Desktop & Detail Settings บนมือถือ) -->
+                    <!-- Full Control Panel (Desktop & Detail Settings) -->
                     <div class="lg:col-span-1 space-y-4 flex flex-col justify-between">
                         <div class="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-sm space-y-4">
                             <h2 class="text-sm font-bold text-slate-700 pb-2 border-b border-slate-100 flex items-center justify-between">
@@ -297,7 +295,7 @@
         }
 
         async function loadRadarData() {
-            const station = document.getElementById('stationSelect').value;
+            const station = document.getElementById('stationSelect') ? document.getElementById('stationSelect').value : 'sattahip';
             const selectedDate = document.getElementById('datePicker').value;
             const [year, month, day] = selectedDate.split('-');
             const spinner = document.getElementById('loadingSpinner');
@@ -335,7 +333,7 @@
 
         async function fetchRealtimeLatestImage() {
             if (isPlaying) stopPlayLoop();
-            const station = document.getElementById('stationSelect').value;
+            const station = document.getElementById('stationSelect') ? document.getElementById('stationSelect').value : 'sattahip';
             const spinner = document.getElementById('loadingSpinner');
             if (spinner) spinner.style.display = 'flex';
 
@@ -392,10 +390,19 @@
             document.getElementById('radarImg').src = item.url;
             document.getElementById('timeDisplay').innerText = formatFilenameToDateTime(item.filename);
             
+            // อัปเดตสถานะปุ่มทั้งฝั่ง Desktop และ Mobile
             const prevBtn = document.getElementById('prevBtn');
             const nextBtn = document.getElementById('nextBtn');
-            if (prevBtn) prevBtn.disabled = (currentIndex === 0);
-            if (nextBtn) nextBtn.disabled = (currentIndex === radarImages.length - 1);
+            const prevBtnMobile = document.getElementById('prevBtnMobile');
+            const nextBtnMobile = document.getElementById('nextBtnMobile');
+
+            const isFirst = (currentIndex === 0);
+            const isLast = (currentIndex === radarImages.length - 1);
+
+            if (prevBtn) prevBtn.disabled = isFirst;
+            if (nextBtn) nextBtn.disabled = isLast;
+            if (prevBtnMobile) prevBtnMobile.disabled = isFirst;
+            if (nextBtnMobile) nextBtnMobile.disabled = isLast;
             
             const spinner = document.getElementById('loadingSpinner');
             if (spinner) spinner.style.display = 'none';
@@ -523,7 +530,9 @@
         });
 
         document.addEventListener('DOMContentLoaded', async () => {
-            document.getElementById('stationSelect').value = 'sattahip';
+            if (document.getElementById('stationSelect')) {
+                document.getElementById('stationSelect').value = 'sattahip';
+            }
             if (document.getElementById('stationSelectMobile')) {
                 document.getElementById('stationSelectMobile').value = 'sattahip';
             }
