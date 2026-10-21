@@ -27,7 +27,7 @@ jobs:
 
       - name: Sync Images to Station Repositories
         run: |
-          STATIONS=("sattahip" "omkoi" "phnom" "takli" "phimai")
+          STATIONS=("sattahip" "omkoi" "phnom" "takli" "phimai" "rongkwang")
           
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
