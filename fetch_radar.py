@@ -13,6 +13,7 @@ LOGO_PATH = "logo.png"
 STATIONS = {
     "sattahip": "สัตหีบ",
     "omkoi": "อมก๋อย",
+    "rongkwang": "ร้องกวาง"
     "phnom": "พนม",
     "takli": "ตาคลี",
     "phimai": "พิมาย"
