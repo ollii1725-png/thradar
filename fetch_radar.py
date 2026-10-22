@@ -15,7 +15,7 @@ STATIONS = {
     "omkoi": "อมก๋อย",
     "rongkwang": "ร้องกวาง",
     "phanom": "พนม",
-    "takli": "ตาคลี",
+    "takhli": "ตาคลี",
     "phimai": "พิมาย"
 }
 
