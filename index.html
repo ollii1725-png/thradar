@@ -3,14 +3,55 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ภาพเรดาร์ทั่วประเทศ</title>
+    
+    <!-- SEO Meta Tags -->
+    <title>ภาพเรดาร์ตรวจอากาศทั่วประเทศ Real-time | Thailand Radar Tracker</title>
+    <meta name="description" content="ติดตามภาพเรดาร์ฝนหลวงและเรดาร์กรมอุตุนิยมวิทยาแบบ Real-time ทั่วประเทศ ตรวจสอบกลุ่มฝน ภาคเหนือ ภาคอีสาน ภาคกลาง ภาคใต้ และกรุงเทพฯ">
+    <meta name="keywords" content="เรดาร์ฝน, ภาพเรดาร์, เรดาร์กรมอุตุ, เรดาร์ฝนหลวง, สภาพอากาศ, ตรวจฝน, เรดาร์สุวรรณภูมิ, เรดาร์สัตหีบ, เรดาร์เชียงราย, เรดาร์ขอนแก่น, เรดาร์ภูเก็ต">
+    <meta name="author" content="Sumet Prapasathit">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://ollii1725-png.github.io/thradar/">
+
+    <!-- Open Graph / Facebook / Line -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://ollii1725-png.github.io/thradar/">
+    <meta property="og:title" content="ภาพเรดาร์ตรวจอากาศทั่วประเทศ Real-time | Thailand Radar Tracker">
+    <meta property="og:description" content="เช็กสภาพอากาศและติดตามกลุ่มฝนทั่วประเทศไทยด้วยภาพเรดาร์ล่าสุดจากกรมอุตุนิยมวิทยาและกรมฝนหลวงฯ">
+    <meta property="og:image" content="https://weather.tmd.go.th/svp/svp240_latest.jpg">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="ภาพเรดาร์ตรวจอากาศทั่วประเทศ Real-time">
+    <meta name="twitter:description" content="เช็กสภาพอากาศและติดตามกลุ่มฝนทั่วประเทศไทยด้วยภาพเรดาร์ล่าสุด">
+    <meta name="twitter:image" content="https://weather.tmd.go.th/svp/svp240_latest.jpg">
+
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         body { 
             font-family: 'Prompt', sans-serif;
-            letter-spacing: 0.025em; /* เพิ่มช่องไฟตัวอักษรทั่วทั้งเว็บ */
+            letter-spacing: 0.025em;
+        }
+        /* Style สำหรับกล่องรูปภาพรองรับ Pan & Zoom */
+        .zoom-viewport {
+            position: relative;
+            overflow: hidden;
+            user-select: none;
+            -webkit-user-select: none;
+            touch-action: none;
+        }
+        .zoom-viewport.zoom-enabled {
+            cursor: grab;
+        }
+        .zoom-viewport.zoom-enabled:active {
+            cursor: grabbing;
+        }
+        #radarImg {
+            transition: transform 0.05s ease-out;
+            transform-origin: center center;
+            will-change: transform;
+            pointer-events: none;
         }
     </style>
 </head>
@@ -18,7 +59,7 @@
 
     <!-- Top & Main Section Container -->
     <div>
-        <!-- Header Bar ดีไซน์เว็บน้ำเขื่อน -->
+        <!-- Header Bar -->
         <header class="bg-gradient-to-r from-[#2563eb] via-[#0284c7] to-[#0891b2] text-white shadow-md sticky top-0 z-50">
             <div class="max-w-7xl mx-auto px-4 py-3 md:py-4 flex flex-wrap items-center justify-between gap-3 sm:gap-4">
                 
@@ -46,7 +87,7 @@
                     </div>
                 </div>
 
-                <!-- Right Section: View Switcher & Dropdown เมนูโปรเจกต์อื่นๆ ที่น่าสนใจ -->
+                <!-- Right Section: View Switcher & Dropdown เมนูโปรเจกต์อื่นๆ -->
                 <div class="flex flex-wrap items-center gap-2 sm:gap-3">
                     
                     <!-- View Mode Switcher -->
@@ -66,25 +107,21 @@
                             <i id="projectsArrow" class="fa-solid fa-chevron-down text-[10px] transition-transform duration-200"></i>
                         </button>
 
-                        <!-- Dropdown Menu Content -->
                         <div id="projectsDropdownMenu" class="hidden absolute right-0 mt-2 w-64 bg-white rounded-2xl shadow-xl border border-slate-100 py-2 z-50 transform origin-top-right transition duration-150">
                             <div class="px-3 py-1.5 text-[10px] font-bold text-slate-400 uppercase tracking-widest border-b border-slate-100 mb-1">
                                 โครงการในเครือ
                             </div>
                             
-                            <!-- 1. ภาพเรดาร์ทั่วประเทศ (Current Page) -->
                             <a href="index.html" class="flex items-center gap-2.5 px-3.5 py-2.5 text-xs font-semibold text-blue-600 bg-blue-50/70 border-l-4 border-blue-600">
                                 <i class="fa-solid fa-satellite-dish text-blue-600 text-sm w-4 text-center"></i>
                                 <span>ภาพเรดาร์ทั่วประเทศ</span>
                             </a>
 
-                            <!-- 2. ปริมาณน้ำในเขื่อนทั่วประเทศ -->
                             <a href="https://ollii1725-png.github.io/damsthailand/" target="_blank" class="flex items-center gap-2.5 px-3.5 py-2.5 text-xs font-medium text-slate-700 hover:bg-slate-50 hover:text-blue-600 transition">
                                 <i class="fa-solid fa-water text-cyan-600 text-sm w-4 text-center"></i>
                                 <span>ปริมาณน้ำในเขื่อนทั่วประเทศ</span>
                             </a>
 
-                            <!-- 3. ติดตามการเคลื่อนที่ดวงอาทิตย์ -->
                             <a href="https://ollii1725-png.github.io/sun-map/" target="_blank" class="flex items-center gap-2.5 px-3.5 py-2.5 text-xs font-medium text-slate-700 hover:bg-slate-50 hover:text-blue-600 transition">
                                 <i class="fa-solid fa-sun text-amber-500 text-sm w-4 text-center"></i>
                                 <span>ติดตามการเคลื่อนที่ดวงอาทิตย์</span>
@@ -114,7 +151,7 @@
                                   <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
                                 </span>
                                 <span class="font-medium text-slate-700 tracking-wider truncate">
-                                    เรดาร์ปัจจุบัน<span id="currentStationLabel" class="font-semibold text-blue-700 ml-1">สถานีสัตหีบ (ชลบุรี)</span>
+                                    เรดาร์ปัจจุบัน<span id="currentStationLabel" class="font-semibold text-blue-700 ml-1">สถานีสัตหีบ จ.ชลบุรี (ฝนหลวง)</span>
                                 </span>
                             </div>
                             <div id="timeDisplay" class="font-bold text-slate-700 text-xs bg-slate-50 px-2.5 py-1 rounded-xl border border-slate-200 shadow-inner tracking-wider flex-shrink-0">
@@ -126,12 +163,7 @@
                         <div class="lg:hidden bg-white border border-slate-200/80 rounded-2xl p-2 shadow-sm space-y-2">
                             <div class="grid grid-cols-2 gap-2">
                                 <select id="stationSelectMobile" onchange="syncAndChangeStation(this.value)" class="w-full bg-slate-50 border border-slate-200 text-slate-800 rounded-xl px-2.5 py-1.5 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500 tracking-wider">
-                                    <option value="sattahip">สถานีสัตหีบ (ชลบุรี)</option>
-                                    <option value="omkoi">สถานีอมก๋อย (เชียงใหม่)</option>
-                                    <option value="rongkwang">สถานีร้องกวาง (แพร่)</option>
-                                    <option value="phanom">สถานีพนม (สุราษฎร์ฯ)</option>
-                                    <option value="takhli">สถานีตาคลี (นครสวรรค์)</option>
-                                    <option value="phimai">สถานีพิมาย (นครราชสีมา)</option>
+                                    <!-- Dynamic Options from JS -->
                                 </select>
 
                                 <button onclick="fetchRealtimeLatestImage()" class="bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-semibold py-1.5 px-3 rounded-xl text-xs transition flex items-center justify-center gap-1 shadow-sm tracking-wider">
@@ -155,14 +187,38 @@
                             </div>
                         </div>
 
-                        <!-- 3. Radar Display Box -->
-                        <div class="bg-white border border-slate-200/80 rounded-2xl p-1.5 sm:p-2.5 relative flex items-center justify-center min-h-[350px] sm:min-h-[500px] lg:min-h-[650px] max-h-[750px] shadow-sm overflow-hidden">
-                            <div id="loadingSpinner" class="absolute inset-0 bg-white/90 z-10 flex flex-col items-center justify-center gap-2 backdrop-blur-sm">
-                                <i class="fa-solid fa-circle-notch fa-spin text-blue-600 text-2xl"></i>
-                                <span class="text-xs font-medium text-slate-600 tracking-wider">กำลังประมวลผลภาพเรดาร์...</span>
+                        <!-- 3. Radar Display Box & Zoom Viewport -->
+                        <div class="bg-white border border-slate-200/80 rounded-2xl p-1.5 sm:p-2.5 relative flex flex-col items-center justify-center min-h-[350px] sm:min-h-[500px] lg:min-h-[650px] max-h-[750px] shadow-sm">
+                            
+                            <!-- Display Viewport สำหรับรองรับการ Zoom/Pan -->
+                            <div id="zoomViewport" class="zoom-viewport w-full h-full flex items-center justify-center rounded-lg relative overflow-hidden">
+                                <div id="loadingSpinner" class="absolute inset-0 bg-white/90 z-10 flex flex-col items-center justify-center gap-2 backdrop-blur-sm">
+                                    <i class="fa-solid fa-circle-notch fa-spin text-blue-600 text-2xl"></i>
+                                    <span class="text-xs font-medium text-slate-600 tracking-wider">กำลังประมวลผลภาพเรดาร์...</span>
+                                </div>
+
+                                <img id="radarImg" src="" alt="Radar Display" draggable="false" class="w-full h-full max-h-[720px] object-contain rounded-lg">
                             </div>
 
-                            <img id="radarImg" src="" alt="Radar Display" class="w-full h-full max-h-[720px] object-contain rounded-lg">
+                            <!-- Controls แว่นขยาย ด้านล่างซ้าย ขอบนอกภาพเรดาร์ -->
+                            <div class="w-full flex items-center justify-between pt-2 px-1 border-t border-slate-100 mt-1">
+                                <div class="flex items-center gap-2">
+                                    <button id="zoomToggleBtn" onclick="toggleZoomMode()" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium rounded-xl text-xs transition shadow-sm border border-slate-200 tracking-wide cursor-pointer">
+                                        <i id="zoomIcon" class="fa-solid fa-magnifying-glass text-blue-600"></i>
+                                        <span id="zoomBtnText">ซูมภาพ</span>
+                                    </button>
+
+                                    <button id="zoomResetBtn" onclick="resetZoom()" class="hidden inline-flex items-center gap-1 px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl text-xs transition border border-slate-200 tracking-wide cursor-pointer" title="รีเซ็ตขนาดปกติ">
+                                        <i class="fa-solid fa-rotate-left text-[10px]"></i>
+                                        <span>รีเซ็ต</span>
+                                    </button>
+                                </div>
+
+                                <div id="zoomHint" class="text-[11px] text-slate-400 hidden sm:block">
+                                    กดปุ่มแว่นขยายเพื่อ Scroll ซูม และลากภาพ
+                                </div>
+                            </div>
+
                         </div>
                     </div>
 
@@ -174,25 +230,41 @@
                                 <span class="text-[10px] bg-blue-50 text-blue-600 px-2 py-0.5 rounded-full font-semibold tracking-wider">THRADAR</span>
                             </h2>
 
-                            <!-- 1. เลือกสถานี (Desktop) -->
+                            <!-- แท็บเลือกประเภทหน่วยงานเรดาร์ -->
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-500 tracking-wider mb-1.5">
+                                    <i class="fa-solid fa-filter text-blue-600 mr-1.5"></i> ประเภทเรดาร์
+                                </label>
+                                <div class="grid grid-cols-2 gap-1.5 bg-slate-100 p-1 rounded-xl border border-slate-200 text-xs">
+                                    <button id="catFilterAll" onclick="filterCategory('all')" class="py-1.5 px-2 rounded-lg font-semibold bg-white text-blue-700 shadow-sm transition">
+                                        ทั้งหมด (Default)
+                                    </button>
+                                    <button id="catFilterRain" onclick="filterCategory('rain')" class="py-1.5 px-2 rounded-lg font-medium text-slate-600 hover:text-slate-900 transition">
+                                        เรดาร์ฝนหลวง
+                                    </button>
+                                    <button id="catFilterTmd" onclick="filterCategory('tmd')" class="py-1.5 px-2 rounded-lg font-medium text-slate-600 hover:text-slate-900 transition">
+                                        เรดาร์กรมอุตุ
+                                    </button>
+                                    <button id="catFilterOther" onclick="filterCategory('other')" class="py-1.5 px-2 rounded-lg font-medium text-slate-600 hover:text-slate-900 transition">
+                                        เรดาร์อื่นๆ
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- 1. เลือกสถานีแบ่งตามภูมิภาค (Desktop) -->
                             <div class="hidden lg:block">
                                 <label class="block text-xs font-semibold text-slate-500 tracking-wider mb-1.5">
-                                    <i class="fa-solid fa-tower-cell text-blue-600 mr-1.5"></i> เลือกสถานีเรดาร์
+                                    <i class="fa-solid fa-tower-cell text-blue-600 mr-1.5"></i> เลือกสถานีเรดาร์ (ตามภูมิภาค)
                                 </label>
                                 <select id="stationSelect" onchange="syncAndChangeStation(this.value)" class="w-full bg-slate-50 border border-slate-200 text-slate-800 rounded-xl px-3.5 py-2 text-xs md:text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition tracking-wider">
-                                    <option value="sattahip">สถานีสัตหีบ (ชลบุรี)</option>
-                                    <option value="omkoi">สถานีอมก๋อย (เชียงใหม่)</option>
-                                    <option value="rongkwang">สถานีร้องกวาง (แพร่)</option>
-                                    <option value="phanom">สถานีพนม (สุราษฎร์ธานี)</option>
-                                    <option value="takhli">สถานีตาคลี (นครสวรรค์)</option>
-                                    <option value="phimai">สถานีพิมาย (นครราชสีมา)</option>
+                                    <!-- Dynamic Options from JS -->
                                 </select>
                             </div>
 
                             <!-- 2. เลือกวันที่ -->
                             <div>
                                 <label class="block text-xs font-semibold text-slate-500 tracking-wider mb-1.5">
-                                    <i class="fa-regular fa-calendar-days text-blue-600 mr-1.5"></i> เลือกวันที่ดูย้อนหลัง
+                                    <i class="fa-regular fa-calendar-days text-blue-600 mr-1.5"></i> เลือกวันที่ดูย้อนหลัง *ปิดชัวคราวจร้า...
                                 </label>
                                 <input type="date" id="datePicker" onchange="loadRadarData()" class="w-full bg-slate-50 border border-slate-200 text-slate-800 rounded-xl px-3.5 py-2 text-xs md:text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition tracking-wider">
                             </div>
@@ -207,7 +279,7 @@
                             <!-- 4. ชุดปุ่มวิดีโอ Loop (Desktop) -->
                             <div class="hidden lg:block pt-2 border-t border-slate-100">
                                 <label class="block text-xs font-semibold text-slate-500 tracking-wider mb-2">
-                                    <i class="fa-solid fa-film text-blue-600 mr-1.5"></i> เล่นวิดีโอย้อนหลัง 24 ชม. (ปิดโหมดภาพและวีดีโอย้อนหลังชั่วคราวครับ)
+                                    <i class="fa-solid fa-film text-blue-600 mr-1.5"></i> เล่นวิดีโอย้อนหลัง 24 ชม. *ปิดชัวคราวจร้า...
                                 </label>
                                 <div id="videoControlBar" class="flex items-center justify-between gap-1.5 bg-slate-50 p-1.5 rounded-xl border border-slate-200">
                                     <button id="prevBtn" onclick="prevImage()" class="flex-1 py-2 px-2 bg-white hover:bg-slate-100 active:bg-slate-200 text-slate-700 border border-slate-200 rounded-lg text-xs font-medium transition disabled:opacity-40 shadow-sm flex items-center justify-center gap-1 tracking-wider">
@@ -277,26 +349,22 @@
             <!-- Grid View Container -->
             <div id="gridViewContainer" class="hidden">
                 <div id="gridGallery" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-                    <!-- JS will render grid items here -->
                 </div>
             </div>
 
         </main>
     </div>
 
-    <!-- Footer Bar โทนสีเข้ม พร้อมปุ่ม ซัพพอร์ตเรา (Donate) -->
+    <!-- Footer Bar -->
     <footer class="bg-slate-800 border-t border-slate-700 text-slate-300 py-3.5 text-xs mt-4 tracking-wider">
         <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-3">
             <div class="flex flex-wrap items-center gap-2 sm:gap-3 text-center sm:text-left">
                 <span>© 2026 Thailand Radar Tracker | Contact us <span class="font-semibold text-white">ollii1725@gmail.com</span></span>
                 <span class="hidden sm:inline text-slate-500">•</span>
-                <span class="text-slate-400">ข้อมูลอ้างอิง: กรมฝนหลวงและการบินเกษตร</span>
+                <span class="text-slate-400">ข้อมูลจาก: กรมฝนหลวงและการบินเกษตร / กรมอุตุนิยมวิทยา</span>
             </div>
             
             <div class="flex items-center gap-3">
-                
-
-                <!-- ปุ่ม ซัพพอร์ตเรา (Donate) เรียกใช้ฟังก์ชันเปิด Modal QR Code -->
                 <button onclick="openDonateModal()" class="inline-flex items-center gap-1.5 px-4 py-1.5 bg-gradient-to-r from-amber-400 via-rose-500 to-pink-500 hover:opacity-95 active:scale-95 text-white font-medium rounded-full shadow-md transition duration-150 text-xs tracking-wide cursor-pointer">
                     <i class="fa-solid fa-heart text-amber-100 text-xs"></i>
                     <span>ซัพพอร์ตเรา (Donate)</span>
@@ -305,16 +373,14 @@
         </div>
     </footer>
 
-    <!-- Modal ป๊อบอัพ ซัพพอร์ตเรา (Donate / PromptPay QR Code) สไตล์เดียวกับเว็บน้ำเขื่อน -->
+    <!-- Modal Donate -->
     <div id="donateModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4 transition-opacity duration-200">
         <div class="bg-white rounded-3xl shadow-2xl border border-slate-100 max-w-sm w-full p-5 relative overflow-hidden transform transition-all scale-95 opacity-0 duration-200" id="donateModalCard">
             
-            <!-- ปุ่มปิดมุมขวาบน -->
             <button onclick="closeDonateModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 bg-slate-100 hover:bg-slate-200 w-8 h-8 rounded-full flex items-center justify-center transition">
                 <i class="fa-solid fa-xmark text-sm"></i>
             </button>
 
-            <!-- หัวข้อ Modal -->
             <div class="text-center pb-3 border-b border-slate-100">
                 <div class="w-12 h-12 bg-rose-50 text-rose-500 rounded-2xl flex items-center justify-center mx-auto mb-2 text-xl shadow-sm border border-rose-100">
                     <i class="fa-solid fa-heart"></i>
@@ -323,21 +389,17 @@
                 <p class="text-[11px] text-slate-500 mt-0.5">ร่วมเป็นกำลังใจให้ทีมงานพัฒนาเว็บและเซิร์ฟเวอร์เรดาร์</p>
             </div>
 
-            <!-- กล่องแสดง QR Code PromptPay -->
             <div class="my-4 flex flex-col items-center justify-center bg-slate-50 rounded-2xl p-4 border border-slate-200/80 shadow-inner">
                 <div class="bg-white p-2.5 rounded-xl border border-slate-200 shadow-sm mb-3">
-                    <!-- รูปภาพ PromptPay QR Code -->
                     <img src="https://lh3.googleusercontent.com/d/1jh3-gqtSdfnq3qdjjEZLG4M3b-RwpIWo" alt="PromptPay QR Code" class="w-48 h-48 object-contain rounded-lg">
                 </div>
                 <div class="text-center space-y-0.5">
                     <p class="text-xs font-semibold text-slate-700 flex items-center justify-center gap-1.5">
                         <i class="fa-solid fa-[#003b71] text-blue-800"></i> สแกนผ่านแอปธนาคาร (PromptPay)
                     </p>
-                    
                 </div>
             </div>
 
-            <!-- ข้อความขอบคุณ -->
             <div class="text-center pt-1">
                 <p class="text-[11px] text-slate-400">ขอบพระคุณทุกๆ การสนับสนุนและกำลังใจครับ 🙏✨</p>
                 <button onclick="closeDonateModal()" class="w-full mt-3 bg-slate-800 hover:bg-slate-900 active:bg-slate-950 text-white font-medium py-2 rounded-xl text-xs transition shadow-sm tracking-wide">
@@ -349,21 +411,143 @@
     </div>
 
     <script>
-        const STATION_PATTERNS = {
-            sattahip: "0300dBZ.cappi.png",
-            omkoi:    "0200dBZ.cappi.png",
-            rongkwang: "0200dBZ.cappi.png",
-            phanom:   "0300dBZ.cappi.png",
-            takhli:   "0400dBZ.cappi.png",
-            phimai:   "0400dBZ.cappi.png"
-        };
-        
+        // ฐานข้อมูลสถานีแบ่งตามประเภทและภูมิภาค
+        const ALL_STATIONS = [
+            // กรุงเทพฯ & ปริมณฑล
+            { id: "svp240_latest", name: "สถานีสุวรรณภูมิ (อุตุฯ)", region: "กรุงเทพฯ", type: "tmd", url: "https://weather.tmd.go.th/svp/svp240_latest.jpg" },
+
+            // ภาคตะวันออก
+            { id: "sattahip", name: "สถานีสัตหีบ จ.ชลบุรี (ฝนหลวง)", region: "ภาคตะวันออก", type: "rain", pattern: "0300dBZ.cappi.png" },
+            { id: "ryg240_latest", name: "สถานีระยอง (อุตุฯ)", region: "ภาคตะวันออก", type: "tmd", url: "https://weather.tmd.go.th/ryg/ryg240_latest.jpg" },
+            { id: "kkw240_latest", name: "สถานีนครนายก (อุตุฯ)", region: "ภาคตะวันออก", type: "tmd", url: "https://weather.tmd.go.th/kkw/kkw240_latest.jpg" },
+            
+            // ภาคเหนือ
+            { id: "rongkwang", name: "สถานีร้องกวาง จ.แพร่ (ฝนหลวง)", region: "ภาคเหนือ", type: "rain", pattern: "0200dBZ.cappi.png" },
+            { id: "omkoi", name: "สถานีอมก๋อย จ.เชียงใหม่ (ฝนหลวง)", region: "ภาคเหนือ", type: "rain", pattern: "0200dBZ.cappi.png" },
+            { id: "cri240_latest", name: "สถานีเชียงราย (อุตุฯ)", region: "ภาคเหนือ", type: "tmd", url: "https://weather.tmd.go.th/cri/cri240_latest.jpg" },
+            { id: "lmp240_latest", name: "สถานีลำพูน (อุตุฯ)", region: "ภาคเหนือ", type: "tmd", url: "https://weather.tmd.go.th/lmp/lmp240_latest.jpg" },
+            { id: "phs240_latest", name: "สถานีพิษณุโลก (อุตุฯ)", region: "ภาคเหนือ", type: "tmd", url: "https://weather.tmd.go.th/phs/phs240_latest.jpg" },
+            { id: "phb240_latest", name: "สถานีเพชรบูรณ์ (อุตุฯ)", region: "ภาคเหนือ", type: "tmd", url: "https://weather.tmd.go.th/phb/phb240_latest.jpg" },
+
+            // ภาคตะวันตก
+            { id: "tak240_latest", name: "สถานีตาก (อุตุฯ)", region: "ภาคตะวันตก", type: "tmd", url: "https://weather.tmd.go.th/tak/tak240_latest.jpg" },
+            
+            // ภาคกลาง
+            { id: "takhli", name: "สถานีตาคลี จ.นครสวรรค์ (ฝนหลวง)", region: "ภาคกลาง", type: "rain", pattern: "0400dBZ.cappi.png" },
+            { id: "chn240_latest", name: "สถานีชัยนาท (อุตุฯ)", region: "ภาคกลาง", type: "tmd", url: "https://weather.tmd.go.th/chn/chn240_latest.jpg" },
+            { id: "skm240_latest", name: "สถานีสมุทรสงคราม (อุตุฯ)", region: "ภาคกลาง", type: "tmd", url: "https://weather.tmd.go.th/skm/skm240_latest.jpg" },
+            
+            // ภาคตะวันออกเฉียงเหนือ
+            { id: "phimai", name: "สถานีพิมาย จ.นครราชสีมา (ฝนหลวง)", region: "ภาคตะวันออกเฉียงเหนือ", type: "rain", pattern: "0400dBZ.cappi.png" },
+            { id: "rasisalai", name: "สถานีราษีไศล จ.ศรีสะเกษ (ฝนหลวง)", region: "ภาคตะวันออกเฉียงเหนือ", type: "rain", pattern: "0400dBZ.cappi.png" },
+            { id: "skn240_latest", name: "สถานีสกลนคร (อุตุฯ)", region: "ภาคตะวันออกเฉียงเหนือ", type: "tmd", url: "https://weather.tmd.go.th/skn/skn240_latest.jpg" },
+            { id: "kkn240_latest", name: "สถานีขอนแก่น (อุตุฯ)", region: "ภาคตะวันออกเฉียงเหนือ", type: "tmd", url: "https://weather.tmd.go.th/kkn/kkn240_latest.gif" },
+            { id: "ubn240_latest", name: "สถานีอุบลราชธานี (อุตุฯ)", region: "ภาคตะวันออกเฉียงเหนือ", type: "tmd", url: "https://weather.tmd.go.th/ubn/ubn240_latest.jpg" },
+            { id: "srn240_latest", name: "สถานีสุรินทร์ (อุตุฯ)", region: "ภาคตะวันออกเฉียงเหนือ", type: "tmd", url: "https://weather.tmd.go.th/srn/srn240_latest.jpg" },
+            
+            // ภาคใต้
+            { id: "cmp240_latest", name: "สถานีชุมพร จ.สุราษฎร์ฯ (อุตุฯ)", region: "ภาคใต้", type: "tmd", url: "https://weather.tmd.go.th/cmp/cmp240_latest.jpg" },
+            { id: "srt240_latest", name: "สถานีสุราษฎร์ธานี (อุตุฯ)", region: "ภาคใต้", type: "tmd", url: "https://weather.tmd.go.th/srt/srt240_latest.png" },
+            { id: "phanom", name: "สถานีพนม จ.สุราษฎร์ฯ (ฝนหลวง)", region: "ภาคใต้", type: "rain", pattern: "0300dBZ.cappi.png" },
+            { id: "rng240_latest", name: "สถานีระนอง (อุตุฯ)", region: "ภาคใต้", type: "tmd", url: "https://weather.tmd.go.th/rng/rng240_latest.jpg" },
+            { id: "pkt240_latest", name: "สถานีภูเก็ต (อุตุฯ)", region: "ภาคใต้", type: "tmd", url: "https://weather.tmd.go.th/pkt/pkt240_latest.jpg" },
+            { id: "trg240_latest", name: "สถานีตรัง (อุตุฯ)", region: "ภาคใต้", type: "tmd", url: "https://weather.tmd.go.th/trg/trg240_latest.jpg" },
+            { id: "hyi240_latest", name: "สถานีหาดใหญ่ (อุตุฯ)", region: "ภาคใต้", type: "tmd", url: "https://weather.tmd.go.th/hyi/hyi240_latest.jpg" },
+            { id: "nrt240_latest", name: "สถานีนราธิวาส (อุตุฯ)", region: "ภาคใต้", type: "tmd", url: "https://weather.tmd.go.th/nrt/nrt240_latest.jpg" }
+        ];
+
+        const REGIONS = [
+            "ทั่วประเทศ",
+            "กรุงเทพฯ",
+            "ภาคเหนือ",
+            "ภาคตะวันออกเฉียงเหนือ",
+            "ภาคกลาง",
+            "ภาคตะวันตก",
+            "ภาคตะวันออก",
+            "ภาคใต้",
+            "อื่นๆ"
+        ];
+
+        let currentCategoryFilter = 'all';
+        let STATION_PATTERNS = {};
+        let TMD_STATIONS = {};
         let radarImages = [];
         let currentIndex = 0;
         let isPlaying = false;
         let playInterval = null;
 
-        // Toggle Projects Dropdown
+        /* ---------- ระบบ Zoom & Pan Variables ---------- */
+        let isZoomMode = false;
+        let scale = 1;
+        let panX = 0;
+        let panY = 0;
+        let isDragging = false;
+        let startX = 0;
+        let startY = 0;
+        let touchStartDist = 0;
+
+        function initStationMaps() {
+            ALL_STATIONS.forEach(st => {
+                if (st.type === 'rain') {
+                    STATION_PATTERNS[st.id] = st.pattern;
+                } else if (st.type === 'tmd') {
+                    TMD_STATIONS[st.id] = st.url;
+                }
+            });
+        }
+
+        function renderStationDropdowns(category = 'all') {
+            const selectDesktop = document.getElementById('stationSelect');
+            const selectMobile = document.getElementById('stationSelectMobile');
+
+            let filteredStations = ALL_STATIONS;
+            if (category !== 'all') {
+                filteredStations = ALL_STATIONS.filter(st => st.type === category);
+            }
+
+            let html = '';
+            REGIONS.forEach(reg => {
+                const stationsInReg = filteredStations.filter(st => st.region === reg);
+                if (stationsInReg.length > 0) {
+                    html += `<optgroup label="📌 ${reg}">`;
+                    stationsInReg.forEach(st => {
+                        html += `<option value="${st.id}">${st.name}</option>`;
+                    });
+                    html += `</optgroup>`;
+                }
+            });
+
+            if (html === '') {
+                html = `<option value="">-- ไม่พบสถานีในหมวดหมู่นี้ --</option>`;
+            }
+
+            if (selectDesktop) selectDesktop.innerHTML = html;
+            if (selectMobile) selectMobile.innerHTML = html;
+        }
+
+        function filterCategory(cat) {
+            currentCategoryFilter = cat;
+            const btnAll = document.getElementById('catFilterAll');
+            const btnRain = document.getElementById('catFilterRain');
+            const btnTmd = document.getElementById('catFilterTmd');
+            const btnOther = document.getElementById('catFilterOther');
+
+            const activeClass = "py-1.5 px-2 rounded-lg font-semibold bg-white text-blue-700 shadow-sm transition";
+            const inactiveClass = "py-1.5 px-2 rounded-lg font-medium text-slate-600 hover:text-slate-900 transition";
+
+            if (btnAll) btnAll.className = cat === 'all' ? activeClass : inactiveClass;
+            if (btnRain) btnRain.className = cat === 'rain' ? activeClass : inactiveClass;
+            if (btnTmd) btnTmd.className = cat === 'tmd' ? activeClass : inactiveClass;
+            if (btnOther) btnOther.className = cat === 'other' ? activeClass : inactiveClass;
+
+            renderStationDropdowns(cat);
+            
+            const select = document.getElementById('stationSelect');
+            if (select && select.options.length > 0 && select.value) {
+                onStationChange();
+            }
+        }
+
         function toggleProjectsMenu() {
             const menu = document.getElementById('projectsDropdownMenu');
             const arrow = document.getElementById('projectsArrow');
@@ -373,7 +557,6 @@
             }
         }
 
-        // Close Projects Dropdown when clicking outside
         document.addEventListener('click', (e) => {
             const btn = document.getElementById('projectsDropdownBtn');
             const menu = document.getElementById('projectsDropdownMenu');
@@ -384,7 +567,6 @@
             }
         });
 
-        // ฟังก์ชันควบคุม Donate Modal Popup
         function openDonateModal() {
             const modal = document.getElementById('donateModal');
             const card = document.getElementById('donateModalCard');
@@ -409,17 +591,135 @@
             }
         }
 
-        // ปิด Donate Modal เมื่อคลิกพื้นหลังสีคล้ำ
         document.getElementById('donateModal').addEventListener('click', (e) => {
-            if (e.target.id === 'donateModal') {
-                closeDonateModal();
+            if (e.target.id === 'donateModal') closeDonateModal();
+        });
+
+        /* ---------- ฟังก์ชันจัดการระบบ Zoom & Pan ---------- */
+        function applyTransform() {
+            const img = document.getElementById('radarImg');
+            const resetBtn = document.getElementById('zoomResetBtn');
+            if (img) {
+                img.style.transform = `translate(${panX}px, ${panY}px) scale(${scale})`;
+            }
+            if (resetBtn) {
+                if (scale !== 1 || panX !== 0 || panY !== 0) {
+                    resetBtn.classList.remove('hidden');
+                } else {
+                    resetBtn.classList.add('hidden');
+                }
+            }
+        }
+
+        function resetZoom() {
+            scale = 1;
+            panX = 0;
+            panY = 0;
+            applyTransform();
+        }
+
+        function toggleZoomMode() {
+            isZoomMode = !isZoomMode;
+            const toggleBtn = document.getElementById('zoomToggleBtn');
+            const btnText = document.getElementById('zoomBtnText');
+            const viewport = document.getElementById('zoomViewport');
+            const hint = document.getElementById('zoomHint');
+
+            if (isZoomMode) {
+                toggleBtn.className = "inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl text-xs transition shadow-sm tracking-wide cursor-pointer";
+                btnText.innerText = "ซูม: เปิดอยู่";
+                viewport.classList.add('zoom-enabled');
+                if (hint) hint.innerText = "ใช้ Scroll เพื่อซูม และคลิกลากภาพได้อิสระ";
+            } else {
+                toggleBtn.className = "inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium rounded-xl text-xs transition shadow-sm border border-slate-200 tracking-wide cursor-pointer";
+                btnText.innerText = "ซูมภาพ";
+                viewport.classList.remove('zoom-enabled');
+                if (hint) hint.innerText = "กดปุ่มแว่นขยายเพื่อ Scroll ซูม และลากภาพ";
+                resetZoom();
+            }
+        }
+
+        const viewport = document.getElementById('zoomViewport');
+
+        viewport.addEventListener('wheel', (e) => {
+            if (!isZoomMode) return;
+            e.preventDefault();
+            const zoomFactor = e.deltaY < 0 ? 1.15 : 0.85;
+            const newScale = scale * zoomFactor;
+
+            if (newScale >= 1 && newScale <= 6) {
+                scale = newScale;
+                applyTransform();
+            } else if (newScale < 1) {
+                resetZoom();
+            }
+        }, { passive: false });
+
+        viewport.addEventListener('mousedown', (e) => {
+            if (!isZoomMode) return;
+            e.preventDefault();
+            isDragging = true;
+            startX = e.clientX - panX;
+            startY = e.clientY - panY;
+        });
+
+        window.addEventListener('mousemove', (e) => {
+            if (!isDragging || !isZoomMode) return;
+            e.preventDefault();
+            panX = e.clientX - startX;
+            panY = e.clientY - startY;
+            applyTransform();
+        });
+
+        window.addEventListener('mouseup', () => {
+            isDragging = false;
+        });
+
+        viewport.addEventListener('touchstart', (e) => {
+            if (!isZoomMode) return;
+            if (e.touches.length === 1) {
+                isDragging = true;
+                startX = e.touches[0].clientX - panX;
+                startY = e.touches[0].clientY - panY;
+            } else if (e.touches.length === 2) {
+                isDragging = false;
+                touchStartDist = Math.hypot(
+                    e.touches[0].clientX - e.touches[1].clientX,
+                    e.touches[0].clientY - e.touches[1].clientY
+                );
             }
         });
 
+        viewport.addEventListener('touchmove', (e) => {
+            if (!isZoomMode) return;
+            if (isDragging && e.touches.length === 1) {
+                panX = e.touches[0].clientX - startX;
+                panY = e.touches[0].clientY - startY;
+                applyTransform();
+            } else if (e.touches.length === 2) {
+                const dist = Math.hypot(
+                    e.touches[0].clientX - e.touches[1].clientX,
+                    e.touches[0].clientY - e.touches[1].clientY
+                );
+                const zoomFactor = dist / touchStartDist;
+                const newScale = scale * zoomFactor;
+                if (newScale >= 1 && newScale <= 6) {
+                    scale = newScale;
+                    touchStartDist = dist;
+                    applyTransform();
+                }
+            }
+        }, { passive: true });
+
+        viewport.addEventListener('touchend', () => {
+            isDragging = false;
+        });
+
+        /* ---------- การโหลดข้อมูลและคุมสเตท ---------- */
         function updateStationLabel() {
             const select = document.getElementById('stationSelect') || document.getElementById('stationSelectMobile');
             const label = document.getElementById('currentStationLabel');
-            if (select && label) {
+            if (select && label && select.options.length > 0 && select.selectedIndex >= 0) {
                 const selectedOptionText = select.options[select.selectedIndex].text;
                 label.innerText = ` ${selectedOptionText}`;
             }
@@ -452,7 +752,16 @@
 
         async function loadRadarData() {
             updateStationLabel();
+            resetZoom();
             const station = document.getElementById('stationSelect') ? document.getElementById('stationSelect').value : 'sattahip';
+            
+            if (!station) return;
+
+            if (TMD_STATIONS[station]) {
+                fetchRealtimeLatestImage();
+                return;
+            }
+
             const selectedDate = document.getElementById('datePicker').value;
             const [year, month, day] = selectedDate.split('-');
             const spinner = document.getElementById('loadingSpinner');
@@ -491,9 +800,31 @@
         async function fetchRealtimeLatestImage() {
             if (isPlaying) stopPlayLoop();
             updateStationLabel();
+            resetZoom();
             const station = document.getElementById('stationSelect') ? document.getElementById('stationSelect').value : 'sattahip';
             const spinner = document.getElementById('loadingSpinner');
             if (spinner) spinner.style.display = 'flex';
+
+            if (!station) {
+                if (spinner) spinner.style.display = 'none';
+                return;
+            }
+
+            if (TMD_STATIONS[station]) {
+                const tmdUrl = `${TMD_STATIONS[station]}?t=${new Date().getTime()}`;
+                const imgTester = new Image();
+                imgTester.onload = function() {
+                    document.getElementById('radarImg').src = tmdUrl;
+                    document.getElementById('timeDisplay').innerHTML = `<span class="text-emerald-600 font-bold tracking-wider"><i class="fa-solid fa-circle text-[9px] text-emerald-500 mr-1"></i> [Real-time อุตุฯ]</span> ภาพล่าสุด`;
+                    if (spinner) spinner.style.display = 'none';
+                };
+                imgTester.onerror = function() {
+                    document.getElementById('timeDisplay').innerText = "ไม่สามารถโหลดภาพเรดาร์ได้";
+                    if (spinner) spinner.style.display = 'none';
+                };
+                imgTester.src = tmdUrl;
+                return;
+            }
 
             const suffix = STATION_PATTERNS[station] || "0300dBZ.cappi.png";
 
@@ -631,7 +962,7 @@
             gallery.innerHTML = radarImages.map((img, idx) => `
                 <div id="grid-card-${idx}" onclick="selectImageFromGrid(${idx})" class="grid-card cursor-pointer border ${idx === currentIndex ? 'border-blue-500 ring-2 ring-blue-500/30' : 'border-slate-200'} rounded-xl overflow-hidden bg-white hover:ring-2 hover:ring-blue-500/30 hover:border-blue-500 transition duration-150 shadow-sm hover:shadow group">
                     <div class="relative bg-white flex items-center justify-center p-1 min-h-[180px]">
-                        <img src="${img.url}" alt="${img.filename}" class="w-full h-auto object-contain max-h-[220px] group-hover:scale-105 transition duration-150">
+                        <img src="${img.url}" alt="${img.filename}" draggable="false" class="w-full h-auto object-contain max-h-[220px] group-hover:scale-105 transition duration-150">
                     </div>
                     <div class="p-2 bg-slate-50 border-t border-slate-100 text-[11px] text-center font-medium text-slate-700 font-mono truncate tracking-wider">
                         <i class="fa-regular fa-clock text-blue-600 mr-1"></i> ${formatFilenameToDateTime(img.filename)}
@@ -687,11 +1018,14 @@
         });
 
         document.addEventListener('DOMContentLoaded', async () => {
+            initStationMaps();
+            renderStationDropdowns('all');
+
             if (document.getElementById('stationSelect')) {
-                document.getElementById('stationSelect').value = 'sattahip';
+                document.getElementById('stationSelect').value = 'svp240_latest';
             }
             if (document.getElementById('stationSelectMobile')) {
-                document.getElementById('stationSelectMobile').value = 'sattahip';
+                document.getElementById('stationSelectMobile').value = 'svp240_latest';
             }
 
             const now = new Date();
