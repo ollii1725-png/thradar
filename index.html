@@ -33,7 +33,6 @@
             font-family: 'Prompt', sans-serif;
             letter-spacing: 0.025em;
         }
-        /* Style สำหรับกล่องรูปภาพรองรับ Pan & Zoom */
         .zoom-viewport {
             position: relative;
             overflow: hidden;
@@ -57,13 +56,11 @@
 </head>
 <body class="bg-slate-100 text-slate-800 min-h-screen flex flex-col justify-between overflow-x-hidden tracking-wide">
 
-    <!-- Top & Main Section Container -->
     <div>
         <!-- Header Bar -->
         <header class="bg-gradient-to-r from-[#2563eb] via-[#0284c7] to-[#0891b2] text-white shadow-md sticky top-0 z-50">
             <div class="max-w-7xl mx-auto px-4 py-3 md:py-4 flex flex-wrap items-center justify-between gap-3 sm:gap-4">
                 
-                <!-- Left Section: Logo & Title -->
                 <div class="flex items-center gap-3">
                     <div class="w-10 h-10 md:w-11 md:h-11 bg-white/15 backdrop-blur-md rounded-2xl flex items-center justify-center shadow-md border border-white/30 flex-shrink-0 p-1.5">
                         <svg class="w-full h-full text-white" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="5">
@@ -87,10 +84,7 @@
                     </div>
                 </div>
 
-                <!-- Right Section: View Switcher & Dropdown เมนูโปรเจกต์อื่นๆ -->
                 <div class="flex flex-wrap items-center gap-2 sm:gap-3">
-                    
-                    <!-- View Mode Switcher -->
                     <div class="flex items-center gap-1 bg-white/15 p-1 rounded-xl border border-white/30 h-10 box-border backdrop-blur-md">
                         <button id="viewSingleBtn" onclick="switchView('single')" class="px-3 py-1 bg-white text-blue-700 text-xs md:text-sm font-semibold rounded-lg shadow-sm transition tracking-wider h-full flex items-center justify-center">
                             <i class="fa-solid fa-image mr-1.5"></i> โหมดภาพเดี่ยว
@@ -100,7 +94,6 @@
                         </button>
                     </div>
 
-                    <!-- Dropdown Menu: โปรเจกต์อื่นๆ ที่น่าสนใจ -->
                     <div class="relative inline-block text-left">
                         <button id="projectsDropdownBtn" onclick="toggleProjectsMenu()" class="inline-flex items-center justify-between gap-2 px-3.5 bg-white/15 hover:bg-white/25 active:bg-white/30 text-white rounded-xl border border-white/30 text-xs md:text-sm font-medium transition shadow-sm backdrop-blur-md h-10 box-border">
                             <span><i class="fa-solid fa-grip text-amber-300 mr-1.5"></i> โปรเจกต์อื่นๆ ที่น่าสนใจ</span>
@@ -138,12 +131,12 @@
 
             <!-- Single View Container -->
             <div id="singleViewContainer">
-                <div class="flex flex-col lg:grid lg:grid-cols-3 gap-3.5 sm:gap-4 items-stretch">
+                <div class="flex flex-col lg:grid lg:grid-cols-3 gap-3.5 sm:gap-4 items-start">
                     
                     <!-- Display Area & Quick Mobile Controls -->
-                    <div class="lg:col-span-2 flex flex-col justify-between space-y-2.5">
+                    <div class="lg:col-span-2 flex flex-col space-y-2.5 w-full">
                         
-                        <!-- 1. Real-time Status Bar -->
+                        <!-- Real-time Status Bar -->
                         <div class="bg-white border border-slate-200/80 rounded-2xl p-2.5 sm:p-3 shadow-sm flex items-center justify-between gap-2">
                             <div class="flex items-center gap-1.5 text-xs text-slate-600 truncate">
                                 <span class="relative flex h-2.5 w-2.5 flex-shrink-0">
@@ -159,11 +152,10 @@
                             </div>
                         </div>
 
-                        <!-- 2. Mobile Quick Control Bar (ใช้งานบนมือถือ) -->
+                        <!-- Mobile Quick Control Bar -->
                         <div class="lg:hidden bg-white border border-slate-200/80 rounded-2xl p-2 shadow-sm space-y-2">
                             <div class="grid grid-cols-2 gap-2">
                                 <select id="stationSelectMobile" onchange="syncAndChangeStation(this.value)" class="w-full bg-slate-50 border border-slate-200 text-slate-800 rounded-xl px-2.5 py-1.5 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500 tracking-wider">
-                                    <!-- Dynamic Options from JS -->
                                 </select>
 
                                 <button onclick="fetchRealtimeLatestImage()" class="bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-semibold py-1.5 px-3 rounded-xl text-xs transition flex items-center justify-center gap-1 shadow-sm tracking-wider">
@@ -171,7 +163,6 @@
                                 </button>
                             </div>
 
-                            <!-- ปุ่มเล่นวิดีโอแบบย่อบนมือถือ -->
                             <div class="flex items-center justify-between gap-1 bg-slate-50 p-1 rounded-xl border border-slate-200">
                                 <button id="prevBtnMobile" onclick="prevImage()" class="flex-1 py-1 px-2 bg-white text-slate-700 border border-slate-200 rounded-lg text-xs font-medium transition shadow-sm active:bg-slate-100 disabled:opacity-40 tracking-wider">
                                     <i class="fa-solid fa-chevron-left text-[9px]"></i> ย้อน
@@ -187,20 +178,17 @@
                             </div>
                         </div>
 
-                        <!-- 3. Radar Display Box & Zoom Viewport -->
-                        <div class="bg-white border border-slate-200/80 rounded-2xl p-1.5 sm:p-2.5 relative flex flex-col items-center justify-center min-h-[350px] sm:min-h-[500px] lg:min-h-[650px] max-h-[750px] shadow-sm">
-                            
-                            <!-- Display Viewport สำหรับรองรับการ Zoom/Pan -->
-                            <div id="zoomViewport" class="zoom-viewport w-full h-full flex items-center justify-center rounded-lg relative overflow-hidden">
+                        <!-- Radar Display Box & Zoom Viewport (ชิดด้านบน) -->
+                        <div class="bg-white border border-slate-200/80 rounded-2xl p-1.5 sm:p-2.5 relative flex flex-col items-center justify-start shadow-sm">
+                            <div id="zoomViewport" class="zoom-viewport w-full flex items-center justify-center rounded-lg relative overflow-hidden min-h-[350px] sm:min-h-[480px]">
                                 <div id="loadingSpinner" class="absolute inset-0 bg-white/90 z-10 flex flex-col items-center justify-center gap-2 backdrop-blur-sm">
                                     <i class="fa-solid fa-circle-notch fa-spin text-blue-600 text-2xl"></i>
                                     <span class="text-xs font-medium text-slate-600 tracking-wider">กำลังประมวลผลภาพเรดาร์...</span>
                                 </div>
 
-                                <img id="radarImg" src="" alt="Radar Display" draggable="false" class="w-full h-full max-h-[720px] object-contain rounded-lg">
+                                <img id="radarImg" src="" alt="Radar Display" draggable="false" class="w-full h-auto max-h-[720px] object-contain rounded-lg">
                             </div>
 
-                            <!-- Controls แว่นขยาย ด้านล่างซ้าย ขอบนอกภาพเรดาร์ -->
                             <div class="w-full flex items-center justify-between pt-2 px-1 border-t border-slate-100 mt-1">
                                 <div class="flex items-center gap-2">
                                     <button id="zoomToggleBtn" onclick="toggleZoomMode()" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium rounded-xl text-xs transition shadow-sm border border-slate-200 tracking-wide cursor-pointer">
@@ -218,12 +206,11 @@
                                     กดปุ่มแว่นขยายเพื่อ Scroll ซูม และลากภาพ
                                 </div>
                             </div>
-
                         </div>
                     </div>
 
-                    <!-- Full Control Panel (Desktop & Detail Settings) -->
-                    <div class="lg:col-span-1 space-y-4 flex flex-col justify-between">
+                    <!-- Full Control Panel -->
+                    <div class="lg:col-span-1 space-y-4 flex flex-col justify-start w-full">
                         <div class="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-sm space-y-4">
                             <h2 class="text-sm font-bold text-slate-700 pb-2 border-b border-slate-100 flex items-center justify-between tracking-wider">
                                 <span><i class="fa-solid fa-sliders text-blue-600 mr-2"></i>ตัวเลือกและการควบคุม</span>
@@ -251,35 +238,46 @@
                                 </div>
                             </div>
 
-                            <!-- 1. เลือกสถานีแบ่งตามภูมิภาค (Desktop) -->
+                            <!-- ส่วนเลือกภูมิภาค (Checkbox ปลดออกทั้งหมดเป็นค่าเริ่มต้น) -->
+                            <div>
+                                <div class="flex items-center justify-between mb-1.5">
+                                    <label class="block text-xs font-semibold text-slate-500 tracking-wider">
+                                        <i class="fa-solid fa-map-location-dot text-blue-600 mr-1.5"></i> เลือกเฉพาะภาค (ถ้าไม่เลือกจะแสดงทั้งหมด)
+                                    </label>
+                                    <button onclick="clearAllRegions()" class="text-[10px] text-blue-600 hover:underline font-medium">ล้างการเลือก</button>
+                                </div>
+                                <div id="regionCheckboxGroup" class="grid grid-cols-2 gap-1.5 bg-slate-50 p-2 rounded-xl border border-slate-200 text-xs max-h-36 overflow-y-auto">
+                                </div>
+                            </div>
+
+                            <!-- เลือกสถานีแบ่งตามภูมิภาค (Desktop) -->
                             <div class="hidden lg:block">
                                 <label class="block text-xs font-semibold text-slate-500 tracking-wider mb-1.5">
-                                    <i class="fa-solid fa-tower-cell text-blue-600 mr-1.5"></i> เลือกสถานีเรดาร์ (ตามภูมิภาค)
+                                    <i class="fa-solid fa-tower-cell text-blue-600 mr-1.5"></i> เลือกสถานีเรดาร์
                                 </label>
                                 <select id="stationSelect" onchange="syncAndChangeStation(this.value)" class="w-full bg-slate-50 border border-slate-200 text-slate-800 rounded-xl px-3.5 py-2 text-xs md:text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition tracking-wider">
-                                    <!-- Dynamic Options from JS -->
                                 </select>
                             </div>
 
-                            <!-- 2. เลือกวันที่ -->
+                            <!-- เลือกวันที่ -->
                             <div>
                                 <label class="block text-xs font-semibold text-slate-500 tracking-wider mb-1.5">
-                                    <i class="fa-regular fa-calendar-days text-blue-600 mr-1.5"></i> เลือกวันที่ดูย้อนหลัง *ปิดชัวคราวจร้า...
+                                    <i class="fa-regular fa-calendar-days text-blue-600 mr-1.5"></i> เลือกวันที่ดูย้อนหลัง *ปิดชั่วคราวจร้า...
                                 </label>
                                 <input type="date" id="datePicker" onchange="loadRadarData()" class="w-full bg-slate-50 border border-slate-200 text-slate-800 rounded-xl px-3.5 py-2 text-xs md:text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition tracking-wider">
                             </div>
 
-                            <!-- 3. ปุ่ม Refresh (Desktop) -->
+                            <!-- ปุ่ม Refresh (Desktop) -->
                             <div class="hidden lg:block">
                                 <button id="latestBtn" onclick="fetchRealtimeLatestImage()" class="w-full bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-semibold py-2.5 px-4 rounded-xl text-xs md:text-sm transition flex items-center justify-center gap-2 shadow-sm shadow-blue-200 tracking-wider">
                                     <i class="fa-solid fa-rotate text-amber-300"></i> ดูภาพปัจจุบัน (Refresh)
                                 </button>
                             </div>
 
-                            <!-- 4. ชุดปุ่มวิดีโอ Loop (Desktop) -->
+                            <!-- ชุดปุ่มวิดีโอ Loop (Desktop) -->
                             <div class="hidden lg:block pt-2 border-t border-slate-100">
                                 <label class="block text-xs font-semibold text-slate-500 tracking-wider mb-2">
-                                    <i class="fa-solid fa-film text-blue-600 mr-1.5"></i> เล่นวิดีโอย้อนหลัง 24 ชม. *ปิดชัวคราวจร้า...
+                                    <i class="fa-solid fa-film text-blue-600 mr-1.5"></i> เล่นวิดีโอย้อนหลัง 24 ชม. *ปิดชั่วคราวจร้า...
                                 </label>
                                 <div id="videoControlBar" class="flex items-center justify-between gap-1.5 bg-slate-50 p-1.5 rounded-xl border border-slate-200">
                                     <button id="prevBtn" onclick="prevImage()" class="flex-1 py-2 px-2 bg-white hover:bg-slate-100 active:bg-slate-200 text-slate-700 border border-slate-200 rounded-lg text-xs font-medium transition disabled:opacity-40 shadow-sm flex items-center justify-center gap-1 tracking-wider">
@@ -297,7 +295,7 @@
                             </div>
                         </div>
 
-                        <!-- คำอธิบายระดับความแรงฝน (dBZ) ตามเกณฑ์เรดาร์กรมฝนหลวงฯ -->
+                        <!-- คำอธิบายระดับความแรงฝน -->
                         <div class="bg-white rounded-2xl p-3.5 border border-slate-200/80 shadow-sm mt-3">
                             <span class="text-xs font-semibold text-slate-700 block mb-2 flex items-center justify-between tracking-wider">
                                 <span><i class="fa-solid fa-layer-group text-blue-600 mr-1.5"></i>เกณฑ์สะท้อนฝน (dBZ)</span>
@@ -359,7 +357,7 @@
     <footer class="bg-slate-800 border-t border-slate-700 text-slate-300 py-3.5 text-xs mt-4 tracking-wider">
         <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-3">
             <div class="flex flex-wrap items-center gap-2 sm:gap-3 text-center sm:text-left">
-                <span>*ขี้เกียจเปิดหลายเว็บ เลยทำไว้ดูง่ายๆ ใครชอบก็เซฟหน้าไว้ครับ ส่งให้เพื่อนแบบเงียบๆได้ครับ อย่าให้โพสเยอะ เดี๋ยวโดนปิด | Contact us <span class="font-semibold text-white">ollii1725@gmail.com</span></span>
+                <span>*ขี้เกียจเปิดหลายเว็บ เลยทำไว้ดูง่ายๆ ใครชอบก็เซฟหน้าไว้ครับ ส่งให้เพื่อนแบบเงียบๆได้ครับ อย่าโพสเยอะ เดี๋ยวโดนปิด | Contact us <span class="font-semibold text-white">ollii1725@gmail.com</span></span>
                 <span class="hidden sm:inline text-slate-500">•</span>
                 <span class="text-slate-400">ภาพเรดาร์จาก: กรมฝนหลวงและการบินเกษตร / กรมอุตุนิยมวิทยา</span>
             </div>
@@ -367,7 +365,7 @@
             <div class="flex items-center gap-3">
                 <button onclick="openDonateModal()" class="inline-flex items-center gap-1.5 px-4 py-1.5 bg-gradient-to-r from-amber-400 via-rose-500 to-pink-500 hover:opacity-95 active:scale-95 text-white font-medium rounded-full shadow-md transition duration-150 text-xs tracking-wide cursor-pointer">
                     <i class="fa-solid fa-heart text-amber-100 text-xs"></i>
-                    <span>ซัพพอร์ตเรา หากชอบ หรืออยากได้อะไร หลังบ้านมา</span>
+                    <span>ซัพพอร์ตเรา หากชอบ หรือให้ปรับอะไร หลังบ้านมา</span>
                 </button>
             </div>
         </div>
@@ -457,7 +455,6 @@
         ];
 
         const REGIONS = [
-            "ทั่วประเทศ",
             "กรุงเทพฯ",
             "ภาคเหนือ",
             "ภาคตะวันออกเฉียงเหนือ",
@@ -468,6 +465,7 @@
             "อื่นๆ"
         ];
 
+        let selectedRegions = new Set(); // ค่าเริ่มต้นว่างไว้ เพื่อให้แสดงทุกภาค
         let currentCategoryFilter = 'all';
         let STATION_PATTERNS = {};
         let TMD_STATIONS = {};
@@ -496,6 +494,37 @@
             });
         }
 
+        // แสดง Checkboxes ภูมิภาค โดยตั้งค่าเริ่มต้นไม่ติ๊กเลือก
+        function renderRegionCheckboxes() {
+            const container = document.getElementById('regionCheckboxGroup');
+            if (!container) return;
+
+            container.innerHTML = REGIONS.map(reg => `
+                <label class="flex items-center gap-1.5 cursor-pointer text-slate-700 hover:text-blue-600 select-none">
+                    <input type="checkbox" value="${reg}" onchange="onRegionCheckboxChange(this)" class="rounded text-blue-600 focus:ring-blue-500 w-3.5 h-3.5">
+                    <span>${reg}</span>
+                </label>
+            `).join('');
+        }
+
+        function clearAllRegions() {
+            const checkboxes = document.querySelectorAll('#regionCheckboxGroup input[type="checkbox"]');
+            selectedRegions.clear();
+            checkboxes.forEach(cb => cb.checked = false);
+            renderStationDropdowns(currentCategoryFilter);
+            onStationChange();
+        }
+
+        function onRegionCheckboxChange(cb) {
+            if (cb.checked) {
+                selectedRegions.add(cb.value);
+            } else {
+                selectedRegions.delete(cb.value);
+            }
+            renderStationDropdowns(currentCategoryFilter);
+            onStationChange();
+        }
+
         function renderStationDropdowns(category = 'all') {
             const selectDesktop = document.getElementById('stationSelect');
             const selectMobile = document.getElementById('stationSelectMobile');
@@ -505,8 +534,14 @@
                 filteredStations = ALL_STATIONS.filter(st => st.type === category);
             }
 
+            // ถ้าไม่มีภาคถูกติ๊กเลือกเลย ให้แสดงสถานีทั้งหมดเป็น Default
+            if (selectedRegions.size > 0) {
+                filteredStations = filteredStations.filter(st => selectedRegions.has(st.region));
+            }
+
             let html = '';
             REGIONS.forEach(reg => {
+                if (selectedRegions.size > 0 && !selectedRegions.has(reg)) return;
                 const stationsInReg = filteredStations.filter(st => st.region === reg);
                 if (stationsInReg.length > 0) {
                     html += `<optgroup label="📌 ${reg}">`;
@@ -518,11 +553,18 @@
             });
 
             if (html === '') {
-                html = `<option value="">-- ไม่พบสถานีในหมวดหมู่นี้ --</option>`;
+                html = `<option value="">-- ไม่พบสถานีในภูมิภาคที่เลือก --</option>`;
             }
+
+            const currentValDesktop = selectDesktop ? selectDesktop.value : '';
 
             if (selectDesktop) selectDesktop.innerHTML = html;
             if (selectMobile) selectMobile.innerHTML = html;
+
+            if (currentValDesktop && ALL_STATIONS.some(s => s.id === currentValDesktop && (selectedRegions.size === 0 || selectedRegions.has(s.region)))) {
+                if (selectDesktop) selectDesktop.value = currentValDesktop;
+                if (selectMobile) selectMobile.value = currentValDesktop;
+            }
         }
 
         function filterCategory(cat) {
@@ -1019,13 +1061,15 @@
 
         document.addEventListener('DOMContentLoaded', async () => {
             initStationMaps();
+            renderRegionCheckboxes();
             renderStationDropdowns('all');
 
+            // กำหนดสถานีเริ่มต้นเป็น สัตหีบ (sattahip)
             if (document.getElementById('stationSelect')) {
-                document.getElementById('stationSelect').value = 'svp240_latest';
+                document.getElementById('stationSelect').value = 'sattahip';
             }
             if (document.getElementById('stationSelectMobile')) {
-                document.getElementById('stationSelectMobile').value = 'svp240_latest';
+                document.getElementById('stationSelectMobile').value = 'sattahip';
             }
 
             const now = new Date();
